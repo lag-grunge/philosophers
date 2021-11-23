@@ -13,12 +13,16 @@ int get_philos_num(char *s)
 //	записать правила
 void get_rules(t_rules *rules, char *argv[])
 {
+	pthread_mutex_t *m;
 	rules->time_to_die = ft_atoi(argv[2]);
 	rules->time_to_eat = ft_atoi(argv[3]);
 	rules->time_to_sleep = ft_atoi(argv[4]);
 	rules->num_eats = 0;
 	if (argv[5])
 		rules->limit_eats = ft_atoi(argv[5]);
+	m = malloc(sizeof(pthread_mutex_t) * 1);
+	pthread_mutex_init(m, NULL);
+	rules->dashboard = m;
 }
 
 void get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
@@ -31,10 +35,10 @@ void get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 	while (i < philo_num)
 	{
 		p[i].id = i + 1;
-		p[i].last_eat_start = 0;
+		p[i].starvation = 0;
 		p[i].l_fork = &dinner->forks[i];
 		p[i].r_fork = &dinner->forks[(i + 1) % philo_num];
-		p[i].rules = dinner->rules;
+		p[i].rules = &dinner->rules;
 		i++;
 	}
 	*philos = p;

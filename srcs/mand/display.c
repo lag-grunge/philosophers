@@ -1,28 +1,21 @@
 #include "philo.h"
 
-void display_message(time_t timestamp, t_philo *philo, int msg)
+void display_message(U_LLINT timestamp, t_philo *philo, int msg)
 {
-	static pthread_mutex_t *m;
-
-	if (!m)
-		pthread_mutex_init(m, NULL);
-	pthread_mutex_lock(m);
+	pthread_mutex_lock(philo->rules->dashboard);
 	if (msg == eat)
-	{
-		printf("%ld %d  eat", timestamp, philo->id);
-	}
+		printf("%llu %d  eat\n", timestamp, philo->id);
 	else if (msg == slp)
-	{
-		printf("%ld %d  sleep", timestamp, philo->id);
-	}
+		printf("%llu %d  sleep\n", timestamp, philo->id);
 	else if (msg == thnk)
-	{
-		printf("%ld %d  thinks", timestamp, philo->id);
-	}
+		printf("%llu %d  thinks\n", timestamp, philo->id);
 	else if (msg == die)
+		printf("%llu %d  dies\n", timestamp, philo->id);
+	pthread_mutex_unlock(philo->rules->dashboard);
+	if (msg == die)
 	{
-		printf("%ld %d  dies", timestamp, philo->id);
+		pthread_mutex_destroy(philo->rules->dashboard);
+		free(philo->rules->dashboard);
 	}
-	pthread_mutex_unlock(m);
 }
 

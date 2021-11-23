@@ -8,22 +8,22 @@ void * ft_process(void *args)
 
 	philo = args;
 	rules = philo->rules;
-	ret = !pthread_mutex_lock(philo->l_fork) && !pthread_mutex_lock(philo->r_fork);
-	while (ret && rules->time_to_die > get_cur_time() - philo->last_eat_start)
+	philo->last_eat_start = get_cur_time();
+	ret = !pthread_mutex_lock(philo->r_fork) && !pthread_mutex_lock(philo->l_fork);
+	while (ret == 1 && !dying(philo))
 	{
 		eating(philo);
 		sleeping(philo);
 		thinking(philo);
 		ret = !pthread_mutex_lock(philo->l_fork) && !pthread_mutex_lock(philo->r_fork);
-
 	}
 	if (!ret)
 		exit (mutex_lock_error);
 	else
-		display_message(get_cur_time(), )
-
-
-
+	{
+		display_message(0, philo, die);
+	}
+	return (NULL);
 }
 
 void	dinner_start(t_dinner *dinner)

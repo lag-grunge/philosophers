@@ -1,6 +1,6 @@
 NAME = philo
 
-LIBPHILO = libphilo
+LIBPHILO = libphilo.a
 
 OBJS_DIR = ./objs
 INCL_DIR = ./include
