@@ -1,18 +1,12 @@
 #include "philo.h"
 
-U_LLINT 	get_cur_time()
+int get_cur_time(t_rules *rules, int start)
 {
-	static struct timeval	first_time;
 	struct timeval 	tv;
-	struct timeval	diff;
 
 	gettimeofday(&tv, NULL);
-	if (!first_time.tv_usec && !first_time.tv_sec)
-	{
-		timersub(&tv, &first_time, &diff);
-		return (diff.tv_sec * 1000 + diff.tv_usec / 1000);
-	}
-	first_time.tv_usec = tv.tv_usec;
-	first_time.tv_sec = tv.tv_sec;
+	if (!start)
+		return ((int)(tv.tv_sec * 1000 + tv.tv_usec / 1000 - rules->start_time));
+	rules->start_time = tv.tv_usec / 1000 +  tv.tv_sec * 1000;
 	return (0);
 }

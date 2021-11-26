@@ -6,12 +6,9 @@ OBJS_DIR = ./objs
 INCL_DIR = ./include
 SRCS_DIR = ./srcs/mand
 BONUS_SRCS_DIR = ./srcs/bonus
-LIBFT_DIR = ./libft
 DIRS = ${OBJ_DIR}
 
-LIBFT = ${LIBFT_DIR}/libft.a
-
-SRCS_LIST = init.c start.c stop.c time.c routine.c display.c
+SRCS_LIST = init.c start.c stop.c time.c routine.c display.c ft_atoi.c
 BONUS_SRCS_LIST = 
 
 OBJS_LIST = ${SRCS_LIST:.c=.o}
@@ -20,24 +17,23 @@ OBJS = $(addprefix ${OBJS_DIR}/,${OBJS_LIST})
 BONUS_OBJS = $(addprefix ${OBJS_DIR}/,${BONUS_OBJS_LIST})
 DEPS = ${OBJS:.o=.d} ${BONUS_OBJS:.o=.d}
 
-INCLUDE = -I${INCL_DIR} -I${LIBFT_DIR}
+INCLUDE = -I${INCL_DIR}
 CFLAGS = -g -Wall -Werror -Wextra -MMD
-LDFLAGS = -L. -L${LIBFT_DIR}
-LIBRARIES = -lphilo -lft
+LDFLAGS = -L.
+LIBRARIES = -lphilo
 
 
-all : ${LIBFT} ${LIBPHILO} ${NAME}
+all : ${LIBPHILO} ${NAME}
 
 bonus :   BONUS=1 all
 
-${NAME} : $(if $(findstring bonus,${MAKECMDGOALS}), ${BONUS_SRCS_DIR}/main.c, ${SRCS_DIR}/main.c) ${LIBFT}
+${NAME} : $(if $(findstring bonus,${MAKECMDGOALS}), ${BONUS_SRCS_DIR}/main.c, ${SRCS_DIR}/main.c)
 	${CC} ${CFLAGS} ${INCLUDE} ${LDFLAGS} $< -o $@ ${LIBRARIES}
 
 ${OBJS} ${BONUS_OBJS} : | ${OBJS_DIR}
 
-${OBJS} : $(warning start)${OBJS_DIR}/%.o : ${SRCS_DIR}/%.c $(info ${SRCS_LIST}) 
-	$(info ${OBJS})
-	${CC} ${CFLAGS} ${INCLUDE} -c $< -o $@ $(info $< $@)
+${OBJS} : ${OBJS_DIR}/%.o : ${SRCS_DIR}/%.c
+	${CC} ${CFLAGS} ${INCLUDE} -c $< -o $@
 ${BONUS_OBJS} : ${OBJS_DIR}/%.o : ${BONUS_SRCS_DIR}/%.c
 	${CC} ${CFLAGS} ${INCLUDE} -c $< -o $@
 
@@ -58,12 +54,4 @@ re: fclean all
 
 -include ${DEPS}
 
-${LIBFT}: libft ;
-
-.PHONY: all bonus clean fclean re libft
-
-libft:
-	make -C ${LIBFT_DIR}
-
-
-	
+.PHONY: all bonus clean fclean re
