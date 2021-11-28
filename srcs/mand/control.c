@@ -17,8 +17,11 @@ void * ft_process(void *args)
 
 void	dinner_start(t_dinner *dinner)
 {
-	int	i;
-	pthread_t		time_ctrl;
+	t_philo 	*philos;
+	t_rules		rules;
+	int			i;
+	int 		timestamp;
+//	pthread_t		time_ctrl;
 
 	i = 0;
 	get_cur_time(&dinner->rules, 1);
@@ -33,8 +36,28 @@ void	dinner_start(t_dinner *dinner)
 		}
 		i++;
 	}
-	pthread_create(&time_ctrl, NULL, timer, dinner);
-	dinner->rules.time_ctrl = time_ctrl;
+//	pthread_create(&time_ctrl, NULL, timer, dinner);
+//	dinner->rules.time_ctrl = time_ctrl;
+
+//	dinner = args;
+	philos = dinner->philos;
+	rules = dinner->rules;
+	while (1)
+	{
+		i = 0;
+		timestamp = get_cur_time(&rules, 0);
+		while (i < dinner->philo_num)
+		{
+			if (rules.time_to_die <= \
+				 timestamp - philos[i].last_eat_start)
+				{
+					rules.someone_dead = 1;
+					display_message(timestamp, philos + i, die);
+				}
+			i++;
+		}
+		usleep(TIMEDELAY_NS);
+	}
 }
 
 void stop_dinner(t_dinner *dinner, int started_threads)
