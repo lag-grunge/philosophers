@@ -10,6 +10,7 @@
 time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define CHARISDIGIT(c) ((c >= 48) && (c <= 57))
 # define CHARISSPACE(c) (((c >= 9) && (c <= 13)) || c == 32)
+# define TIMEDELAY_NS 10000
 
 typedef unsigned long long int U_LLINT;
 typedef unsigned int t_uint;
@@ -17,7 +18,6 @@ typedef unsigned int t_uint;
 enum errors {
 	philo_num_error = 1,
 	pthread_create_error = 2,
-	mutex_lock_error = 3
 };
 
 enum msgs {
@@ -25,7 +25,9 @@ enum msgs {
 	eat = 0,
 	slp = 1,
 	thnk = 2,
-	die = 3
+	die = 3,
+	l_fork = 4,
+	r_fork = 5
 };
 
 
@@ -35,6 +37,7 @@ typedef struct s_philo {
 	int 			last_eat_start;
 	pthread_mutex_t *l_fork;
 	pthread_mutex_t *r_fork;
+	enum msgs		cur_fork;
 	struct s_rules 	*rules;
 }				t_philo;
 
@@ -49,7 +52,8 @@ typedef struct s_rules {
 	size_t			limit_eats;
 	pthread_mutex_t *dashboard;
 	U_LLINT 		start_time;
-	action			actions[4];
+	pthread_t		time_ctrl;
+	action			actions[5];
 }				t_rules;
 
 typedef struct s_dinner {
@@ -68,6 +72,7 @@ void	get_forks(pthread_mutex_t **forks, int argc);
 void 	*ft_process(void *args);
 void	dinner_start(t_dinner *dinner);
 void	stop_dinner(t_dinner *dinner, int started_threads);
+void 	*timer(void *args);
 
 void	eating(t_philo *philo);
 void	sleeping(t_philo *philo);

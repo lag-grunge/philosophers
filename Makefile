@@ -8,8 +8,10 @@ SRCS_DIR = ./srcs/mand
 BONUS_SRCS_DIR = ./srcs/bonus
 DIRS = ${OBJ_DIR}
 
-SRCS_LIST = init.c start.c stop.c time.c routine.c display.c ft_atoi.c
-BONUS_SRCS_LIST = 
+SRCS_LIST = init.c ft_atoi.c \
+			control.c routine.c \
+						display.c time.c
+BONUS_SRCS_LIST =
 
 OBJS_LIST = ${SRCS_LIST:.c=.o}
 BONUS_OBJS_LIST = ${BONUS_SRCS_LIST:.c=.o} 
@@ -20,7 +22,7 @@ DEPS = ${OBJS:.o=.d} ${BONUS_OBJS:.o=.d}
 INCLUDE = -I${INCL_DIR}
 CFLAGS = -g -Wall -Werror -Wextra -MMD
 LDFLAGS = -L.
-LIBRARIES = -lphilo
+LIBRARIES = -lphilo -lpthread
 
 
 all : ${LIBPHILO} ${NAME}

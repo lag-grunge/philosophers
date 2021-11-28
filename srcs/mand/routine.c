@@ -24,14 +24,18 @@ void sleeping(t_philo *philo)
 
 void trying_forks(t_philo *philo)
 {
-	if (philo->id % 2 == 1)
+	if (philo->cur_fork == l_fork)
 	{
 		pthread_mutex_lock(philo->l_fork);
-		pthread_mutex_lock(philo->r_fork);
-		return ;
+		display_message(get_cur_time(philo->rules, 0), philo, l_fork);
+		philo->cur_fork = r_fork;
 	}
-	pthread_mutex_lock(philo->r_fork);
-	pthread_mutex_lock(philo->l_fork);
+	else if (philo->cur_fork == r_fork)
+	{
+		pthread_mutex_lock(philo->r_fork);
+		display_message(get_cur_time(philo->rules, 0), philo, r_fork);
+		philo->cur_fork = l_fork;
+	}
 }
 
 void thinking(t_philo *philo)
@@ -46,11 +50,5 @@ int is_living(t_philo *philo)
 {
 	if (philo->rules->someone_dead)
 		return (0);
-	if (philo->rules->time_to_die <= \
-		get_cur_time(philo->rules, 0) - philo->last_eat_start)
-	{
-		philo->rules->someone_dead = 1;
-		return (0);
-	}
 	return (1);
 }
