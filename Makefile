@@ -1,56 +1,57 @@
 NAME = philo
+NAME_B = philo_bonus
 
-LIBPHILO = libphilo.a
-
-OBJS_DIR = ./objs
+OBJS_DIR = ./objs/mand
+OBJS_B_DIR = ./objs/bonus
 INCL_DIR = ./include
 SRCS_DIR = ./srcs/mand
-BONUS_SRCS_DIR = ./srcs/bonus
+SRCS_DIR_B= ./srcs/bonus
 DIRS = ${OBJ_DIR}
 
 SRCS_LIST = init.c ft_atoi.c \
 			control.c routine.c \
 						display.c time.c
-BONUS_SRCS_LIST =
-
+SRCS_LIST_B = init.c ft_atoi.c\
+			control.c routine.c \
+						display.c time.c
 OBJS_LIST = ${SRCS_LIST:.c=.o}
-BONUS_OBJS_LIST = ${BONUS_SRCS_LIST:.c=.o} 
+OBJS_LIST_B= ${SRCS_LIST_B:.c=.o} 
 OBJS = $(addprefix ${OBJS_DIR}/,${OBJS_LIST})
-BONUS_OBJS = $(addprefix ${OBJS_DIR}/,${BONUS_OBJS_LIST})
-DEPS = ${OBJS:.o=.d} ${BONUS_OBJS:.o=.d}
+OBJS_B = $(addprefix ${OBJS_B_DIR}/,${OBJS_LIST_B})
+DEPS = ${OBJS:.o=.d} ${OBJS_B:.o=.d}
 
 INCLUDE = -I${INCL_DIR}
 CFLAGS = -g -Wall -Werror -Wextra -MMD
-LDFLAGS = -L.
-LIBRARIES = -lphilo -lpthread
+LIBRARIES = -lpthread
 
 
-all : ${LIBPHILO} ${NAME}
+all : ${NAME}
+bonus : ${NAME_B}
 
-bonus :   BONUS=1 all
+${NAME} : ${SRCS_DIR}/main.c ${OBJS} 
+	${CC} ${CFLAGS} ${INCLUDE} $^ -o $@ ${LIBRARIES}
 
-${NAME} : $(if $(findstring bonus,${MAKECMDGOALS}), ${BONUS_SRCS_DIR}/main.c, ${SRCS_DIR}/main.c)
-	${CC} ${CFLAGS} ${INCLUDE} ${LDFLAGS} $< -o $@ ${LIBRARIES}
+${NAME_B} : ${SRCS_DIR_B}/main.c ${OBJS_B}
+	${CC} ${CFLAGS} ${INCLUDE} $^ -o $@ ${LIBRARIES}
 
-${OBJS} ${BONUS_OBJS} : | ${OBJS_DIR}
+${OBJS} ${OBJS_B} : | ${OBJS_DIR} ${OBJS_B_DIR}
 
 ${OBJS} : ${OBJS_DIR}/%.o : ${SRCS_DIR}/%.c
 	${CC} ${CFLAGS} ${INCLUDE} -c $< -o $@
-${BONUS_OBJS} : ${OBJS_DIR}/%.o : ${BONUS_SRCS_DIR}/%.c
+${OBJS_B} : ${OBJS_B_DIR}/%.o : ${SRCS_DIR_B}/%.c
 	${CC} ${CFLAGS} ${INCLUDE} -c $< -o $@
 
-${LIBPHILO} : $(if $(findstring bonus,${MAKECMDGOALS}), ${OBJS_DIR}/${BONUS_OBJS}, ${OBJS})
-	ar rcs $@ $?
-
-${OBJS_DIR}:
+${OBJS_DIR} ${OBJS_B_DIR} :
+	mkdir -p ./objs
 	mkdir -p $@
 
 clean:
-	rm -rf ${OBJS} ${DEPS}
+	rm -rf ${OBJS_DIR}
+	rm -rf ${OBJS_B_DIR}
 
 fclean: clean
-	rm -f ${LIBPHILO}
 	rm -f ${NAME}
+	rm -f ${NAME_B}
 
 re: fclean all
 
