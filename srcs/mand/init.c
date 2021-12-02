@@ -21,6 +21,9 @@ void get_rules(t_rules *rules, char *argv[])
 	if (argv[5])
 		rules->limit_eats = ft_atoi(argv[5]);
 	rules->someone_dead = 0;
+	m = malloc(sizeof(pthread_mutex_t) *  1);
+	pthread_mutex_init(m, NULL);
+	rules->dashboard = m;
 	rules->actions[0] = trying_forks;
 	rules->actions[1] = trying_forks;
 	rules->actions[2] = eating;
@@ -39,6 +42,9 @@ void get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 	{
 		p[i].id = i + 1;
 		p[i].rules = &dinner->rules;
+		p[i].r_fork = &dinner->forks[i];
+		p[i].l_fork = &dinner->forks[(i + 1) % philo_num];
+		p[i].cur_fork = l_fork;
 		i++;
 	}
 	*philos = p;

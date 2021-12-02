@@ -1,11 +1,13 @@
 #ifndef PHILO_H
 # define PHILO_H
-# include <pthread.h>
 # include <sys/time.h>
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
 # include <limits.h>
+# include <semaphore.h>
+# include <fcntl.h>
+# include <sys/stat.h>
 # define ARG_ERROR "Usage: ./philo number_of_philosophers time_to_die time_to_eat\n\
 time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define CHARISDIGIT(c) ((c >= 48) && (c <= 57))

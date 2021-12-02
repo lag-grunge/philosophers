@@ -7,7 +7,7 @@ void * ft_process(void *args)
 
 	philo = args;
 	i = 0;
-	while (is_living(philo))
+	while (!philo->rules->someone_dead)
 	{
 		philo->rules->actions[i % 5](philo);
 		i++;
@@ -17,87 +17,76 @@ void * ft_process(void *args)
 
 void	dinner_start(t_dinner *dinner)
 {
-	t_philo 	*philos;
-	t_rules		rules;
 	int			i;
-	int 		timestamp;
-//	pthread_t		time_ctrl;
+	pthread_t		time_ctrl;
 
 	i = 0;
 	get_cur_time(&dinner->rules, 1);
 	while (i < dinner->philo_num)
 	{
-		dinner->philos[i].last_eat_start = get_cur_time(&dinner->rules, 0);
+		dinner->philos[i].last_eat_start = 0;
 		if (pthread_create(&dinner->philos[i].thread_id, NULL, ft_process, &dinner->philos[i]))
 		{
 			free(dinner->philos);
 			free(dinner->forks);
 			exit(pthread_create_error);
 		}
-		i++;
+		i += 2;
 	}
-//	pthread_create(&time_ctrl, NULL, timer, dinner);
-//	dinner->rules.time_ctrl = time_ctrl;
-
-//	dinner = args;
-	philos = dinner->philos;
-	rules = dinner->rules;
-	while (1)
+	i = 1;
+	usleep(EVEN_ODD_LAG);
+	while (i < dinner->philo_num)
 	{
-		i = 0;
-		timestamp = get_cur_time(&rules, 0);
-		while (i < dinner->philo_num)
+		dinner->philos[i].last_eat_start = 0;
+		if (pthread_create(&dinner->philos[i].thread_id, NULL, ft_process, &dinner->philos[i]))
 		{
-			if (rules.time_to_die <= \
-				 timestamp - philos[i].last_eat_start)
-				{
-					rules.someone_dead = 1;
-					display_message(timestamp, philos + i, die);
-				}
-			i++;
+			free(dinner->philos);
+			free(dinner->forks);
+			exit(pthread_create_error);
 		}
-		usleep(TIMEDELAY_NS);
+		i += 2;
 	}
+	usleep(WAITER_LAG);
+	pthread_create(&time_ctrl, NULL, waiter, dinner);
+	dinner->rules.time_ctrl = time_ctrl;
 }
 
 void stop_dinner(t_dinner *dinner, int started_threads)
 {
 	int	i;
+
 	i = started_threads;
+	pthread_join(dinner->rules.time_ctrl, NULL);
 	while (i > 0)
 	{
 		pthread_join(dinner->philos[i - 1].thread_id, NULL);
 		i--;
 	}
-	pthread_join(dinner->rules.time_ctrl, NULL);
 }
 
-void *timer(void *args)
+void *waiter(void *args)
 {
 	t_dinner 	*dinner;
-	t_philo 	*philos;
-	t_rules		rules;
 	int			i;
 	int 		timestamp;
 
 	dinner = args;
-	philos = dinner->philos;
-	rules = dinner->rules;
-	i = 0;
-	while (1)
+	while ((&dinner->rules)->someone_dead)
 	{
+		usleep(WAITER_PERIOD);
+		i = 0;
 		while (i < dinner->philo_num)
 		{
-			timestamp = get_cur_time(&rules, 0);
-			if (rules.time_to_die <= \
-				 timestamp - philos[i].last_eat_start)
-				{
-					rules.someone_dead = 1;
-					display_message(timestamp, philos + i, die);
-				}
+			timestamp = get_cur_time((&dinner->rules), 0);
+			if ((&dinner->rules)->time_to_die <= \
+				 timestamp - dinner->philos[i].last_eat_start)
+				 {
+				(&dinner->rules)->someone_dead = 1;
+				display_message(timestamp, dinner->philos + i, die);
+				break ;
+			}
 			i++;
 		}
-		usleep(TIMEDELAY_NS);
 	}
 	return (NULL);
 }

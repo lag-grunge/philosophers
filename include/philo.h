@@ -10,38 +10,35 @@
 time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define CHARISDIGIT(c) ((c >= 48) && (c <= 57))
 # define CHARISSPACE(c) (((c >= 9) && (c <= 13)) || c == 32)
-# define TIMEDELAY_NS 10000
+# define WAITER_PERIOD 10000
+# define WAITER_LAG (dinner->rules.time_to_die - 10) * 1000
+# define EVEN_ODD_LAG 1000
 
 typedef unsigned long long int U_LLINT;
 typedef unsigned int t_uint;
 
-enum errors {
+enum e_errors {
 	philo_num_error = 1,
-	pthread_create_error = 2,
+	pthread_create_error,
 };
 
-enum msgs {
-	init = -1,
-	eat = 0,
-	slp = 1,
-	thnk = 2,
-	die = 3,
-	l_fork = 4,
-	r_fork = 5
+enum e_msgs {
+	eat,
+	slp,
+	thnk,
+	die,
+	frk,
+	tmst
+};
+
+enum e_forks {
+	l_fork,
+	r_fork
 };
 
 
-typedef struct s_philo {
-	int 			id;
-	pthread_t		thread_id;
-	int 			last_eat_start;
-	pthread_mutex_t *l_fork;
-	pthread_mutex_t *r_fork;
-	enum msgs		cur_fork;
-	struct s_rules 	*rules;
-}				t_philo;
 
-typedef void (*action)(t_philo*);
+typedef void (*action)(void*);
 
 typedef struct s_rules {
 	int				time_to_die;
@@ -55,6 +52,16 @@ typedef struct s_rules {
 	pthread_t		time_ctrl;
 	action			actions[5];
 }				t_rules;
+
+typedef struct s_philo {
+	int 			id;
+	pthread_t		thread_id;
+	int 			last_eat_start;
+	pthread_mutex_t *l_fork;
+	pthread_mutex_t *r_fork;
+	enum e_forks	cur_fork;
+	struct s_rules 	*rules;
+}				t_philo;
 
 typedef struct s_dinner {
 	t_philo 		*philos;
@@ -72,13 +79,13 @@ void	get_forks(pthread_mutex_t **forks, int argc);
 void 	*ft_process(void *args);
 void	dinner_start(t_dinner *dinner);
 void	stop_dinner(t_dinner *dinner, int started_threads);
-void 	*timer(void *args);
 
-void	eating(t_philo *philo);
-void	sleeping(t_philo *philo);
-void	thinking(t_philo *philo);
-void trying_forks(t_philo *philo);
-int		is_living(t_philo *philo);
+void 	*waiter(void *args);
+
+void	eating(void *args);
+void	sleeping(void *args);
+void	thinking(void *args);
+void	trying_forks(void *args);
 
 int get_cur_time(t_rules *rules, int start);
 void	display_message(int timestamp, t_philo *philo, int msg);
