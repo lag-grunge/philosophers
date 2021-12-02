@@ -6,8 +6,9 @@ void * ft_process(void *args)
 	int i;
 
 	philo = args;
+	usleep(EVEN_LAG);
 	i = 0;
-	while (!philo->rules->someone_dead)
+	while (1)
 	{
 		philo->rules->actions[i % 5](philo);
 		i++;
@@ -31,37 +32,21 @@ void	dinner_start(t_dinner *dinner)
 			free(dinner->forks);
 			exit(pthread_create_error);
 		}
-		i += 2;
-	}
-	i = 1;
-	usleep(EVEN_ODD_LAG);
-	while (i < dinner->philo_num)
-	{
-		dinner->philos[i].last_eat_start = 0;
-		if (pthread_create(&dinner->philos[i].thread_id, NULL, ft_process, &dinner->philos[i]))
-		{
-			free(dinner->philos);
-			free(dinner->forks);
-			exit(pthread_create_error);
-		}
-		i += 2;
+		pthread_detach(dinner->philos[i].thread_id);
+		i++;
 	}
 	usleep(WAITER_LAG);
 	pthread_create(&time_ctrl, NULL, waiter, dinner);
 	dinner->rules.time_ctrl = time_ctrl;
 }
 
-void stop_dinner(t_dinner *dinner, int started_threads)
+void stop_dinner(t_dinner *dinner)
 {
-	int	i;
-
-	i = started_threads;
 	pthread_join(dinner->rules.time_ctrl, NULL);
-	while (i > 0)
-	{
-		pthread_join(dinner->philos[i - 1].thread_id, NULL);
-		i--;
-	}
+	pthread_mutex_destroy(dinner->rules.dashboard);
+	free(dinner->rules.dashboard);
+	pthread_mutex_destroy(dinner->forks);
+	free(dinner->forks);
 }
 
 void *waiter(void *args)
@@ -71,14 +56,14 @@ void *waiter(void *args)
 	int 		timestamp;
 
 	dinner = args;
-	while ((&dinner->rules)->someone_dead)
+	while (!(&dinner->rules)->someone_dead)
 	{
 		usleep(WAITER_PERIOD);
 		i = 0;
 		while (i < dinner->philo_num)
 		{
 			timestamp = get_cur_time((&dinner->rules), 0);
-			if ((&dinner->rules)->time_to_die <= \
+			if ((&dinner->rules)->time_to_die < \
 				 timestamp - dinner->philos[i].last_eat_start)
 				 {
 				(&dinner->rules)->someone_dead = 1;

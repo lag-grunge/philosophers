@@ -1,31 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_atoi.c                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/26 12:54:16 by sdalton           #+#    #+#             */
-/*   Updated: 2021/05/06 17:15:38 by sdalton          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "philo.h"
-
-
-/**   The atoi() function converts the initial portion of the string
-       pointed to by nptr to int.  The behavior is the same as
-
-           strtol(nptr, NULL, 10);
-
-       except that atoi() does not detect errors.
-
-       The atol() and atoll() functions behave the same as atoi(),
-       except that they convert the initial portion of the string to
-       their return type of long or long long.
-RETURN VALUE
-       The converted value or 0 on error.
-**/
 
 static int	check_overflow(int n1, int n2, int sign)
 {
@@ -97,22 +70,3 @@ int	ft_atoi(char *s)
 	else
 		return (sign * n);
 }
-/*
-#include <stdio.h>
-
-int main(int argc, char *argv[])
-{
-	int	i;
-
-	if (argc > 1)
-	{
-		i = 1;
-		while (i < argc)
-		{
-			printf("%d\n", atoi(argv[i]));
-			printf("%d\n", ft_atoi(argv[i]));
-			i++;
-		}
-	}
-
-}*/

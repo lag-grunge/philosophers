@@ -8,11 +8,13 @@
 # include <limits.h>
 # define ARG_ERROR "Usage: ./philo number_of_philosophers time_to_die time_to_eat\n\
 time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
+# define PHILO_NUM_ERROR "Philosophers wrong number\n"
+# define WRITE_ERROR(x) write(STDERR_FILENO, x, ft_strlen(x));
 # define CHARISDIGIT(c) ((c >= 48) && (c <= 57))
 # define CHARISSPACE(c) (((c >= 9) && (c <= 13)) || c == 32)
 # define WAITER_PERIOD 10000
 # define WAITER_LAG (dinner->rules.time_to_die - 10) * 1000
-# define EVEN_ODD_LAG 1000
+# define EVEN_LAG (philo->id % 2) * 1000
 
 typedef unsigned long long int U_LLINT;
 typedef unsigned int t_uint;
@@ -35,8 +37,6 @@ enum e_forks {
 	l_fork,
 	r_fork
 };
-
-
 
 typedef void (*action)(void*);
 
@@ -78,8 +78,7 @@ void	get_forks(pthread_mutex_t **forks, int argc);
 
 void 	*ft_process(void *args);
 void	dinner_start(t_dinner *dinner);
-void	stop_dinner(t_dinner *dinner, int started_threads);
-
+void 	stop_dinner(t_dinner *dinner);
 void 	*waiter(void *args);
 
 void	eating(void *args);
@@ -87,9 +86,9 @@ void	sleeping(void *args);
 void	thinking(void *args);
 void	trying_forks(void *args);
 
-int get_cur_time(t_rules *rules, int start);
+int 	get_cur_time(t_rules *rules, int start);
 void	display_message(int timestamp, t_philo *philo, int msg);
-
 int		ft_atoi(char *s);
+int 	ft_strlen(char *s);
 
 #endif

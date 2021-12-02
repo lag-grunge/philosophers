@@ -7,6 +7,7 @@ int get_philos_num(char *s)
 	num = ft_atoi(s);
 	if (num < 1)
 		exit (philo_num_error);
+	WRITE_ERROR(PHILO_NUM_ERROR)
 	return (num);
 }
 
