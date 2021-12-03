@@ -12,9 +12,10 @@ time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define WRITE_ERROR(x) write(STDERR_FILENO, x, ft_strlen(x));
 # define CHARISDIGIT(c) ((c >= 48) && (c <= 57))
 # define CHARISSPACE(c) (((c >= 9) && (c <= 13)) || c == 32)
-# define WAITER_PERIOD 10000
-# define WAITER_LAG (dinner->rules.time_to_die - 10) * 1000
+# define WAITER_PERIOD 10 * 1000
+# define WAITER_LAG 10 * 1000
 # define EVEN_LAG (philo->id % 2) * 1000
+# define ACTIONS_NUM 5
 
 typedef unsigned long long int U_LLINT;
 typedef unsigned int t_uint;
@@ -24,13 +25,14 @@ enum e_errors {
 	pthread_create_error,
 };
 
-enum e_msgs {
+enum e_actions {
+	frk1,
+	frk2,
 	eat,
 	slp,
 	thnk,
 	die,
-	frk,
-	tmst
+	lim
 };
 
 enum e_forks {
@@ -44,19 +46,19 @@ typedef struct s_rules {
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int 			someone_dead;
-	size_t			num_eats;
-	size_t			limit_eats;
+	int 			stop;
+	int 			limit_eats;
 	pthread_mutex_t *dashboard;
 	U_LLINT 		start_time;
 	pthread_t		time_ctrl;
-	action			actions[5];
+	action			actions[ACTIONS_NUM];
 }				t_rules;
 
 typedef struct s_philo {
 	int 			id;
 	pthread_t		thread_id;
 	int 			last_eat_start;
+	int 			eat_num;
 	pthread_mutex_t *l_fork;
 	pthread_mutex_t *r_fork;
 	enum e_forks	cur_fork;

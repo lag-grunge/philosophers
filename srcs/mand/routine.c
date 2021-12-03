@@ -25,7 +25,6 @@ void sleeping(void *args)
 	usleep(philo->rules->time_to_sleep * 1000);
 }
 
-
 void trying_forks(void *args)
 {
 	pthread_mutex_t *cur;
@@ -42,7 +41,7 @@ void trying_forks(void *args)
 		next = l_fork;
 	}
 	pthread_mutex_lock(cur);
-	display_message(get_cur_time(philo->rules, 0), philo, frk);
+	display_message(get_cur_time(philo->rules, 0), philo, frk1);
 	philo->cur_fork = next;
 }
 

@@ -10,7 +10,9 @@ void * ft_process(void *args)
 	i = 0;
 	while (1)
 	{
-		philo->rules->actions[i % 5](philo);
+		philo->rules->actions[i % ACTIONS_NUM](philo);
+		if (i % ACTIONS_NUM == eat)
+			philo->eat_num++;
 		i++;
 	}
 	return (NULL);
@@ -56,21 +58,28 @@ void *waiter(void *args)
 	int 		timestamp;
 
 	dinner = args;
-	while (!(&dinner->rules)->someone_dead)
+	while (!dinner->rules.stop)
 	{
 		usleep(WAITER_PERIOD);
 		i = 0;
 		while (i < dinner->philo_num)
 		{
 			timestamp = get_cur_time((&dinner->rules), 0);
-			if ((&dinner->rules)->time_to_die < \
+			if (dinner->rules.time_to_die < \
 				 timestamp - dinner->philos[i].last_eat_start)
 				 {
-				(&dinner->rules)->someone_dead = 1;
+				dinner->rules.stop = 1;
 				display_message(timestamp, dinner->philos + i, die);
 				break ;
 			}
+			if (dinner->rules.limit_eats > dinner->philos[i].eat_num)
+				break ;
 			i++;
+		}
+		if (i == dinner->philo_num && dinner->rules.limit_eats > -1)
+		{
+			dinner->rules.stop = 1;
+			display_message(timestamp, dinner->philos + i - 1, lim);
 		}
 	}
 	return (NULL);
