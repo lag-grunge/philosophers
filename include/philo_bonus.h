@@ -2,6 +2,7 @@
 # define PHILO_H
 # include <pthread.h>
 # include <semaphore.h>
+# include <signal.h>
 # include <sys/time.h>
 # include <stdio.h>
 # include <unistd.h>
@@ -23,7 +24,7 @@ typedef unsigned int t_uint;
 
 enum e_errors {
 	philo_num_error = 1,
-	pthread_create_error,
+	fork_create_error,
 };
 
 enum e_actions {
@@ -33,7 +34,8 @@ enum e_actions {
 	slp,
 	thnk,
 	die,
-	lim
+	lim,
+	tmst
 };
 
 enum e_forks {
@@ -47,16 +49,17 @@ typedef struct s_rules {
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int 			stop;
 	int 			limit_eats;
 	sem_t 			*dashboard;
+	sem_t			*stop_die;
+	sem_t			*stop_lim;
 	U_LLINT 		start_time;
-	pthread_t		time_ctrl;
 	action			actions[ACTIONS_NUM];
 }				t_rules;
 
 typedef struct s_philo {
 	int 			id;
+	pid_t			pid;
 	int 			last_eat_start;
 	sem_t 			*forks;
 	int 			eat_num;
@@ -85,6 +88,10 @@ void	eating(void *args);
 void	sleeping(void *args);
 void	thinking(void *args);
 void	trying_forks(void *args);
+int		stop(void *args);
+
+void *waiter_die(void *args);
+void *waiter_lim(void *args);
 
 int 	get_cur_time(t_rules *rules, int start);
 void	display_message(int timestamp, t_philo *philo, int msg);

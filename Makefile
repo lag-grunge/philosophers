@@ -50,7 +50,7 @@ ${OBJS_CMN} : ${OBJS_DIR_CMN}/%.o : ${SRCS_DIR_CMN}/%.c
 	${CC} ${CFLAGS} ${INCLUDE} -c $< -o $@
 ${OBJS} : ${OBJS_DIR}/%.o : ${SRCS_DIR}/%.c
 	${CC} ${CFLAGS} ${INCLUDE} -c $< -o $@
-${OBJS_B} : ${OBJS_DIR_B}/%.o : ${SRCS_DIR_B}/%.c
+${OBJS_B} : ${OBJS_DIR_B}/%.o : ${SRCS_DIR_B}/%.c ./include/philo_bonus.h
 	${CC} ${CFLAGS} ${INCLUDE} -c $< -o $@
 
 ${DIRS} :

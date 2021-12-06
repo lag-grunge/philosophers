@@ -6,96 +6,131 @@ void * ft_process(void *args)
 	int i;
 
 	philo = args;
+	display_message(EVEN_LAG, philo, tmst);
 	usleep(EVEN_LAG);
 	i = 0;
-	while (1)
+	while (!stop(philo))
 	{
 		philo->rules->actions[i % ACTIONS_NUM](philo);
 		if (i % ACTIONS_NUM == eat)
 			philo->eat_num++;
 		i++;
 	}
-	return (NULL);
+	usleep(WAITER_PERIOD);
+	sem_post(philo->rules->stop_die);
+	exit (0);
 }
 
 void	dinner_start(t_dinner *dinner)
 {
 	int			i;
-	pid_t		pid;
 	pthread_t	time_ctrl;
 
-	i = 0;
 	get_cur_time(&dinner->rules, 1);
+	i = 0;
 	while (i < dinner->philo_num)
 	{
 		dinner->philos[i].last_eat_start = 0;
-		pid = fork();
-		if (pid < 0)
+		dinner->philos[i].pid = fork();
+		if (dinner->philos[i].pid < 0)
 		{
 			free(dinner->philos);
-			free(dinner->forks);
-			exit(pthread_create_error);
+			exit(fork_create_error);
 		}
-		else if (pid == 0)
-		{
+		else if (dinner->philos[i].pid == 0)
 			ft_process(dinner->philos + i);
-			exit (0);
-		}
 		else
 			i++;
 	}
 	usleep(WAITER_LAG);
-	pthread_create(&time_ctrl, NULL, waiter, dinner);
-	dinner->rules.time_ctrl = time_ctrl;
+	pthread_create(&time_ctrl, NULL, waiter_die, dinner);
+	pthread_detach(time_ctrl);
+	if (dinner->rules.stop_lim)
+	{
+		pthread_create(&time_ctrl, NULL, waiter_lim, dinner);
+		pthread_detach(time_ctrl);
+	}
 }
 
 void stop_dinner(t_dinner *dinner)
 {
 	int i;
 
-	pthread_join(dinner->rules.time_ctrl, NULL);
 	i = dinner->philo_num;
 	while (i > 0)
 	{
-		waitpid(-1, NULL, WNOHANG);
+		waitpid(-1, NULL, 0);
 		i--;
 	}
 	sem_close(dinner->rules.dashboard);
 	sem_close(dinner->forks);
+	sem_close(dinner->rules.stop_die);
 	sem_unlink("dashboard");
 	sem_unlink("forks");
+	sem_unlink("stop_die");
+	if (dinner->rules.stop_lim)
+	{
+		sem_close(dinner->rules.stop_lim);
+		sem_unlink("stop_lim");
+	}
 }
 
-void *waiter(void *args)
+void *waiter_die(void *args)
 {
 	t_dinner 	*dinner;
 	int			i;
 	int 		timestamp;
 
 	dinner = args;
-	while (!dinner->rules.stop)
+	while (1)
 	{
-		usleep(WAITER_PERIOD);
-		i = 0;
-		while (i < dinner->philo_num)
+		usleep(1000);
+		while (1)
 		{
-			timestamp = get_cur_time((&dinner->rules), 0);
-			if (dinner->rules.time_to_die < \
-				 timestamp - dinner->philos[i].last_eat_start)
-				 {
-				dinner->rules.stop = 1;
-				display_message(timestamp, dinner->philos + i, die);
-				break ;
+			timestamp = get_cur_time(&dinner->rules, 0);
+			sem_wait(dinner->rules.stop_die);
+			sem_post(dinner->rules.stop_die);
+			if (get_cur_time(&dinner->rules, 0) - timestamp >= \
+					WAITER_PERIOD)
+			{
+				i = 0;
+				while (i < dinner->philo_num)
+				{
+					kill(dinner->philos[i].pid, SIGKILL);
+					i++;
+				}
+				return (NULL);
 			}
-			if (dinner->rules.limit_eats > dinner->philos[i].eat_num)
-				break ;
-			i++;
-		}
-		if (i == dinner->philo_num && dinner->rules.limit_eats > -1)
-		{
-			dinner->rules.stop = 1;
-			display_message(timestamp, dinner->philos + i - 1, lim);
 		}
 	}
 	return (NULL);
 }
+
+void *waiter_lim(void *args)
+{
+	t_dinner 	*dinner;
+	int			i;
+	int 		timestamp;
+
+	dinner = args;
+	while (1)
+	{
+		usleep(1000);
+		timestamp = get_cur_time(&dinner->rules, 0);
+		sem_wait(dinner->rules.stop_lim);
+		sem_post(dinner->rules.stop_lim);
+		if (get_cur_time(&dinner->rules, 0) - timestamp >= \
+				WAITER_PERIOD)
+		{
+			display_message(timestamp, dinner->philos, lim);
+			i = 0;
+			while (i < dinner->philo_num)
+			{
+				kill(dinner->philos[i].pid, SIGKILL);
+				i++;
+			}
+		}
+	}
+	return (NULL);
+}
+
