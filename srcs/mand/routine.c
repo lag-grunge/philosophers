@@ -9,7 +9,7 @@ void eating(void *args)
 	timestamp = get_cur_time(philo->rules, 0);
 	philo->last_eat_start = timestamp;
 	display_message(timestamp, philo, eat);
-	usleep(philo->rules->time_to_eat * 1000);
+	u_sleep(philo->rules->time_to_eat * 1000);
 	pthread_mutex_unlock(philo->l_fork);
 	pthread_mutex_unlock(philo->r_fork);
 }
@@ -22,7 +22,7 @@ void sleeping(void *args)
 	philo = args;
 	timestamp = get_cur_time(philo->rules, 0);
 	display_message(timestamp, philo, slp);
-	usleep(philo->rules->time_to_sleep * 1000);
+	u_sleep(philo->rules->time_to_sleep * 1000);
 }
 
 void trying_forks(void *args)

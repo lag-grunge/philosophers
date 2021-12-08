@@ -14,7 +14,7 @@ time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define CHARISSPACE(c) (((c >= 9) && (c <= 13)) || c == 32)
 # define WAITER_PERIOD 10 * 1000
 # define WAITER_LAG 10 * 1000
-# define EVEN_LAG (philo->id % 2) * 1000
+# define EVEN_LAG (philo->id % 2 == 0) * 1000
 # define ACTIONS_NUM 5
 
 typedef unsigned long long int U_LLINT;
@@ -92,5 +92,6 @@ int 	get_cur_time(t_rules *rules, int start);
 void	display_message(int timestamp, t_philo *philo, int msg);
 int		ft_atoi(char *s);
 int 	ft_strlen(char *s);
+void	u_sleep(int mseconds);
 
 #endif

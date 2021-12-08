@@ -48,3 +48,31 @@ int	ft_atoi(char *s)
 	n = n * sign;
 	return (n);
 }
+
+int get_cur_time(t_rules *rules, int start)
+{
+	struct timeval 	tv;
+
+	gettimeofday(&tv, NULL);
+	if (!start)
+		return ((int)(tv.tv_sec * 1000 + tv.tv_usec / 1000 - rules->start_time));
+	rules->start_time = tv.tv_usec / 1000 +  tv.tv_sec * 1000;
+	return (0);
+}
+
+void u_sleep(int mseconds)
+{
+	U_LLINT 		timestamp;
+	U_LLINT 		cur;
+	struct timeval	tv;
+	
+	gettimeofday(&tv, NULL);
+	timestamp = tv.tv_usec + tv.tv_sec * 1000000;
+	cur = timestamp;
+	while ((int)(cur - timestamp) < mseconds)
+	{
+		usleep(50);
+		gettimeofday(&tv, NULL);
+		cur = tv.tv_usec + tv.tv_sec * 1000000; 
+	}
+}

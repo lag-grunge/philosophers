@@ -1,4 +1,4 @@
-#include "philo.h"
+#include "../../includes/philo.h"
 
 void * ft_process(void *args)
 {
@@ -37,7 +37,7 @@ void	dinner_start(t_dinner *dinner)
 		pthread_detach(dinner->philos[i].thread_id);
 		i++;
 	}
-	usleep(WAITER_LAG);
+	u_sleep(WAITER_LAG);
 	pthread_create(&time_ctrl, NULL, waiter, dinner);
 	dinner->rules.time_ctrl = time_ctrl;
 }
@@ -60,7 +60,7 @@ void *waiter(void *args)
 	dinner = args;
 	while (!dinner->rules.stop)
 	{
-		usleep(WAITER_PERIOD);
+		u_sleep(WAITER_PERIOD);
 		i = 0;
 		while (i < dinner->philo_num)
 		{
@@ -72,14 +72,27 @@ void *waiter(void *args)
 				display_message(timestamp, dinner->philos + i, die);
 				break ;
 			}
-			if (dinner->rules.limit_eats > dinner->philos[i].eat_num)
-				break ;
 			i++;
 		}
-		if (i == dinner->philo_num && dinner->rules.limit_eats > -1)
+		if (i < dinner->philo_num)
 		{
-			dinner->rules.stop = 1;
-			display_message(timestamp, dinner->philos + i - 1, lim);
+			display_message(timestamp, dinner->philos + i, die);
+			break ;
+		}
+		if (dinner->rules.limit_eats > -1)
+		{
+			i = 0;
+			while (i < dinner->philo_num)
+			{
+				if (dinner->rules.limit_eats > dinner->philos[i].eat_num)
+					break ;
+				i++;
+			}
+			if (i == dinner->philo_num)
+			{
+				dinner->rules.stop = 1;
+				display_message(timestamp, dinner->philos + i - 1, lim);
+			}
 		}
 	}
 	return (NULL);

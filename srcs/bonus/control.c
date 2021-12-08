@@ -7,7 +7,7 @@ void * ft_process(void *args)
 
 	philo = args;
 	display_message(EVEN_LAG, philo, tmst);
-	usleep(EVEN_LAG);
+	u_sleep(EVEN_LAG);
 	i = 0;
 	while (!stop(philo))
 	{
@@ -16,7 +16,7 @@ void * ft_process(void *args)
 			philo->eat_num++;
 		i++;
 	}
-	usleep(WAITER_PERIOD);
+	u_sleep(WAITER_PERIOD);
 	sem_post(philo->rules->stop_die);
 	exit (0);
 }
@@ -81,10 +81,10 @@ void *waiter_die(void *args)
 	int 		timestamp;
 
 	dinner = args;
-	usleep(WAITER_DIE_LAG);
+	u_sleep(WAITER_DIE_LAG);
 	while (1)
 	{
-		usleep(WAITER_PERIOD);
+		u_sleep(WAITER_PERIOD);
 		while (1)
 		{
 			timestamp = get_cur_time(&dinner->rules, 0);
@@ -113,10 +113,10 @@ void *waiter_lim(void *args)
 	int 		timestamp;
 
 	dinner = args;
-	usleep(WAITER_LIM_LAG);
+	u_sleep(WAITER_LIM_LAG);
 	while (1)
 	{
-		usleep(1000);
+		u_sleep(1000);
 		timestamp = get_cur_time(&dinner->rules, 0);
 		sem_wait(dinner->rules.stop_lim);
 		sem_post(dinner->rules.stop_lim);

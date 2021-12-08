@@ -9,7 +9,7 @@ void eating(void *args)
 	timestamp = get_cur_time(philo->rules, 0);
 	philo->last_eat_start = timestamp;
 	display_message(timestamp, philo, eat);
-	usleep(philo->rules->time_to_eat * 1000);
+	u_sleep(philo->rules->time_to_eat * 1000);
 	sem_post(philo->forks);
 	sem_post(philo->forks);
 }
@@ -22,7 +22,7 @@ void sleeping(void *args)
 	philo = args;
 	timestamp = get_cur_time(philo->rules, 0);
 	display_message(timestamp, philo, slp);
-	usleep(philo->rules->time_to_sleep * 1000);
+	u_sleep(philo->rules->time_to_sleep * 1000);
 }
 
 void trying_forks(void *args)
@@ -63,7 +63,7 @@ int	stop(void *args)
 		if (philo->eat_num >= philo->rules->limit_eats)	
 		{
 			sem_post(philo->rules->stop_lim);
-			usleep(WAITER_PERIOD);
+			u_sleep(WAITER_PERIOD);
 			sem_wait(philo->rules->stop_lim);
 		}
 	}
