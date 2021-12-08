@@ -1,4 +1,8 @@
-#include "philo_bonus.h"
+#ifndef BONUS
+# include "philo.h"
+#else
+# include "philo_bonus.h"
+#endif
 
 int main(int argc, char *argv[])
 {

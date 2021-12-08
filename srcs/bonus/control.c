@@ -1,4 +1,4 @@
-#include "philo_bonus.h"
+#include "../../includes/philo_bonus.h"
 
 void * ft_process(void *args)
 {
@@ -42,14 +42,13 @@ void	dinner_start(t_dinner *dinner)
 		else
 			i++;
 	}
-	usleep(WAITER_LAG);
-	pthread_create(&time_ctrl, NULL, waiter_die, dinner);
-	pthread_detach(time_ctrl);
 	if (dinner->rules.stop_lim)
 	{
 		pthread_create(&time_ctrl, NULL, waiter_lim, dinner);
 		pthread_detach(time_ctrl);
 	}
+	pthread_create(&time_ctrl, NULL, waiter_die, dinner);
+	pthread_detach(time_ctrl);
 }
 
 void stop_dinner(t_dinner *dinner)
@@ -82,16 +81,17 @@ void *waiter_die(void *args)
 	int 		timestamp;
 
 	dinner = args;
+	usleep(WAITER_DIE_LAG);
 	while (1)
 	{
-		usleep(1000);
+		usleep(WAITER_PERIOD);
 		while (1)
 		{
 			timestamp = get_cur_time(&dinner->rules, 0);
 			sem_wait(dinner->rules.stop_die);
 			sem_post(dinner->rules.stop_die);
 			if (get_cur_time(&dinner->rules, 0) - timestamp >= \
-					WAITER_PERIOD)
+					1000)
 			{
 				i = 0;
 				while (i < dinner->philo_num)
@@ -113,6 +113,7 @@ void *waiter_lim(void *args)
 	int 		timestamp;
 
 	dinner = args;
+	usleep(WAITER_LIM_LAG);
 	while (1)
 	{
 		usleep(1000);

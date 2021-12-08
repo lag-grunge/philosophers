@@ -1,4 +1,4 @@
-#include "philo_bonus.h"
+#include "../../includes/philo_bonus.h"
 
 void eating(void *args)
 {
@@ -56,7 +56,7 @@ int	stop(void *args)
 	{
 		sem_wait(philo->rules->stop_die);
 		display_message(timestamp, philo, die);
-		return (1);	
+		return (1);
 	}
 	if (philo->rules->limit_eats > -1)
 	{

@@ -1,6 +1,21 @@
-#include "philo_bonus.h"
+#include "../../includes/philo_bonus.h"
 
-//	записать правила
+sem_t	*my_sem_open(char *filename, int value)
+{
+	sem_t *s;
+
+	s = sem_open(filename, O_CREAT | O_EXCL, 0666, value);
+	if (s != SEM_FAILED)
+		return (s);
+	else if (errno != EEXIST)
+		exit (3);
+	sem_unlink(filename);
+	s = sem_open(filename, O_CREAT | O_EXCL, 0666, value);
+	if (s == SEM_FAILED)
+		exit (3);
+	return (s);
+}
+
 void get_rules(t_rules *rules, char *argv[])
 {
 	rules->time_to_die = ft_atoi(argv[2]);
@@ -11,14 +26,10 @@ void get_rules(t_rules *rules, char *argv[])
 	if (argv[5])
 	{
 		rules->limit_eats = ft_atoi(argv[5]);
-		rules->stop_lim = sem_open("stop_lim", O_CREAT, 0666, rules->limit_eats);
+		rules->stop_lim = my_sem_open("stop_lim", rules->limit_eats);
 	}
-	rules->stop_die = sem_open("stop_die", O_CREAT, 0666, 1);
-	if (rules->stop_die == SEM_FAILED)
-		exit (3);
-	rules->dashboard = sem_open("dashboard", O_CREAT, 0666, 1);
-	if (rules->dashboard == SEM_FAILED)
-		exit (3);
+	rules->stop_die = my_sem_open("stop_die", 1);
+	rules->dashboard = my_sem_open("dashboard", 1);
 	rules->actions[0] = trying_forks;
 	rules->actions[1] = trying_forks;
 	rules->actions[2] = eating;
@@ -46,7 +57,7 @@ void get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 
 void get_forks(sem_t **forks, int argc)
 {
-	*forks = sem_open("forks", O_CREAT, 0666, argc);
+	*forks = my_sem_open("forks", argc);
 	if (*forks == SEM_FAILED)
 		exit (3);
 }

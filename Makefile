@@ -5,13 +5,13 @@ LIBPHILO = libphilo.a
 OBJS_DIR_CMN = ./objs
 OBJS_DIR = ./objs/mand
 OBJS_DIR_B = ./objs/bonus
-INCL_DIR = ./include
+INCL_DIR = ./includes
 SRCS_DIR_CMN = ./srcs
 SRCS_DIR = ./srcs/mand
 SRCS_DIR_B= ./srcs/bonus
 DIRS = ${OBJS_DIR_CMN} ${OBJS_DIR} ${OBJS_DIR_B}
 
-SRCS_LIST_CMN = utils.c
+SRCS_LIST_CMN = utils.c main.c
 SRCS_LIST = init.c \
 			control.c routine.c \
 			display.c time.c
@@ -34,12 +34,13 @@ LDFLAGS = -L.
 
 all : ${LIBPHILO} ${NAME}
 bonus : ${LIBPHILO} ${NAME_B}
+bonus : BONUS=1
 
-${NAME} : ${SRCS_DIR}/main.c ${OBJS} ${LIBPHILO}
-	${CC} ${CFLAGS} ${INCLUDE} ${LDFLAGS} $(filter-out ${LIBPHILO},$^) -o $@ ${LIBRARIES}
+${NAME} : ${OBJS} ${LIBPHILO}
+	${CC} ${INCLUDE} ${LDFLAGS} $(filter-out ${LIBPHILO},$^) -o $@ ${LIBRARIES}
 
-${NAME_B} : ${SRCS_DIR_B}/main.c ${OBJS_B} ${LIBPHILO}
-	${CC} ${CFLAGS} ${INCLUDE} ${LDFLAGS} $(filter-out ${LIBPHILO},$^) -o $@ ${LIBRARIES}
+${NAME_B} : ${OBJS_B} ${LIBPHILO}
+	${CC} ${INCLUDE} ${LDFLAGS} $(filter-out ${LIBPHILO},$^) -o $@ ${LIBRARIES}
 
 ${LIBPHILO} : ${OBJS_CMN}
 	ar rcs $@ $?
@@ -50,7 +51,7 @@ ${OBJS_CMN} : ${OBJS_DIR_CMN}/%.o : ${SRCS_DIR_CMN}/%.c
 	${CC} ${CFLAGS} ${INCLUDE} -c $< -o $@
 ${OBJS} : ${OBJS_DIR}/%.o : ${SRCS_DIR}/%.c
 	${CC} ${CFLAGS} ${INCLUDE} -c $< -o $@
-${OBJS_B} : ${OBJS_DIR_B}/%.o : ${SRCS_DIR_B}/%.c ./include/philo_bonus.h
+${OBJS_B} : ${OBJS_DIR_B}/%.o : ${SRCS_DIR_B}/%.c
 	${CC} ${CFLAGS} ${INCLUDE} -c $< -o $@
 
 ${DIRS} :

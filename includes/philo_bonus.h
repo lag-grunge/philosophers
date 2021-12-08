@@ -8,6 +8,7 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <limits.h>
+# include <errno.h>
 # define ARG_ERROR "Usage: ./philo number_of_philosophers time_to_die time_to_eat\n\
 time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define PHILO_NUM_ERROR "Philosophers wrong number\n"
@@ -15,8 +16,9 @@ time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define CHARISDIGIT(c) ((c >= 48) && (c <= 57))
 # define CHARISSPACE(c) (((c >= 9) && (c <= 13)) || c == 32)
 # define WAITER_PERIOD 10 * 1000
-# define WAITER_LAG 10 * 1000
-# define EVEN_LAG (philo->id % 2) * 1000
+# define WAITER_LIM_LAG 0
+# define WAITER_DIE_LAG ((dinner->rules.time_to_die) * 1000 - (WAITER_PERIOD / 2))
+# define EVEN_LAG (philo->id % 2 == 0) * 1000
 # define ACTIONS_NUM 5
 
 typedef unsigned long long int U_LLINT;
