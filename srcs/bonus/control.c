@@ -6,17 +6,21 @@ void * ft_process(void *args)
 	int i;
 
 	philo = args;
-	display_message(EVEN_LAG, philo, tmst);
 	u_sleep(EVEN_LAG);
 	i = 0;
-	while (!stop(philo))
+	while (!stop_die(philo))
 	{
 		philo->rules->actions[i % ACTIONS_NUM](philo);
 		if (i % ACTIONS_NUM == eat)
-			philo->eat_num++;
+		{
+			philo->eat_num++;	
+			if (philo->rules->limit_eats > -1  && \
+				philo->eat_num == philo->rules->limit_eats)
+				sem_post(philo->rules->stop_lim);
+		}
 		i++;
 	}
-	u_sleep(WAITER_PERIOD);
+	u_sleep(SIGNAL_DIE);
 	sem_post(philo->rules->stop_die);
 	exit (0);
 }
@@ -84,14 +88,13 @@ void *waiter_die(void *args)
 	u_sleep(WAITER_DIE_LAG);
 	while (1)
 	{
-		u_sleep(WAITER_PERIOD);
 		while (1)
 		{
 			timestamp = get_cur_time(&dinner->rules, 0);
 			sem_wait(dinner->rules.stop_die);
 			sem_post(dinner->rules.stop_die);
 			if (get_cur_time(&dinner->rules, 0) - timestamp >= \
-					1000)
+					MIN_TIME)
 			{
 				i = 0;
 				while (i < dinner->philo_num)
@@ -101,6 +104,7 @@ void *waiter_die(void *args)
 				}
 				return (NULL);
 			}
+			u_sleep(MIN_TIME);
 		}
 	}
 	return (NULL);
@@ -110,28 +114,27 @@ void *waiter_lim(void *args)
 {
 	t_dinner 	*dinner;
 	int			i;
-	int 		timestamp;
+	int 		ret;
 
 	dinner = args;
 	u_sleep(WAITER_LIM_LAG);
-	while (1)
+	i = 0;
+	while (i < dinner->philo_num)
 	{
-		u_sleep(1000);
-		timestamp = get_cur_time(&dinner->rules, 0);
-		sem_wait(dinner->rules.stop_lim);
-		sem_post(dinner->rules.stop_lim);
-		if (get_cur_time(&dinner->rules, 0) - timestamp >= \
-				WAITER_PERIOD)
-		{
-			display_message(timestamp, dinner->philos, lim);
-			i = 0;
-			while (i < dinner->philo_num)
-			{
-				kill(dinner->philos[i].pid, SIGKILL);
-				i++;
-			}
-		}
+		ret = sem_wait(dinner->rules.stop_lim);
+		if (!ret)
+			i++;
+		else
+			perror("waiter_lim");
 	}
+	display_message(get_cur_time(&dinner->rules, 0), dinner->philos, lim);
+	kill(0, SIGTERM);
+			//i = 0;
+			// while (i < dinner->philo_num)
+			//{
+			//	kill(dinner->philos[i].pid, SIGTERM);
+			//	i++;
+			//}
 	return (NULL);
 }
 

@@ -26,7 +26,7 @@ void get_rules(t_rules *rules, char *argv[])
 	if (argv[5])
 	{
 		rules->limit_eats = ft_atoi(argv[5]);
-		rules->stop_lim = my_sem_open("stop_lim", rules->limit_eats);
+		rules->stop_lim = my_sem_open("stop_lim", 0);
 	}
 	rules->stop_die = my_sem_open("stop_die", 1);
 	rules->dashboard = my_sem_open("dashboard", 1);

@@ -15,7 +15,10 @@ time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define WRITE_ERROR(x) write(STDERR_FILENO, x, ft_strlen(x));
 # define CHARISDIGIT(c) ((c >= 48) && (c <= 57))
 # define CHARISSPACE(c) (((c >= 9) && (c <= 13)) || c == 32)
-# define WAITER_PERIOD 10 * 1000
+# define WAITER_PERIOD 1000
+# define MIN_TIME 60
+# define SIGNAL_DIE 2000
+# define SIGNAL_LIM 2000
 # define WAITER_LIM_LAG 0
 # define WAITER_DIE_LAG ((dinner->rules.time_to_die) * 1000 - (WAITER_PERIOD / 2))
 # define EVEN_LAG (philo->id % 2 == 0) * 1000
@@ -90,7 +93,7 @@ void	eating(void *args);
 void	sleeping(void *args);
 void	thinking(void *args);
 void	trying_forks(void *args);
-int		stop(void *args);
+int		stop_die(void *args);
 
 void *waiter_die(void *args);
 void *waiter_lim(void *args);
@@ -99,5 +102,6 @@ int 	get_cur_time(t_rules *rules, int start);
 void	display_message(int timestamp, t_philo *philo, int msg);
 int		ft_atoi(char *s);
 int 	ft_strlen(char *s);
+void	u_sleep(int mseconds);
 
 #endif

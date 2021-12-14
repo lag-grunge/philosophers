@@ -44,7 +44,7 @@ void thinking(void *args)
 	display_message(timestamp, philo, thnk);
 }
 
-int	stop(void *args)
+int	stop_die(void *args)
 {
 	t_philo *philo;
 	int timestamp;
@@ -57,15 +57,6 @@ int	stop(void *args)
 		sem_wait(philo->rules->stop_die);
 		display_message(timestamp, philo, die);
 		return (1);
-	}
-	if (philo->rules->limit_eats > -1)
-	{
-		if (philo->eat_num >= philo->rules->limit_eats)	
-		{
-			sem_post(philo->rules->stop_lim);
-			u_sleep(WAITER_PERIOD);
-			sem_wait(philo->rules->stop_lim);
-		}
 	}
 	return (0);
 }
