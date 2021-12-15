@@ -13,7 +13,7 @@ DIRS = ${OBJS_DIR_CMN} ${OBJS_DIR} ${OBJS_DIR_B}
 
 SRCS_LIST_CMN = utils.c main.c
 SRCS_LIST = init.c control.c routine.c display.c
-SRCS_LIST_B = init.c control.c routine.c display.c
+SRCS_LIST_B = init.c control.c routine.c display.c utils2.c
 OBJS_LIST_CMN = ${SRCS_LIST_CMN:.c=.o}
 OBJS_LIST = ${SRCS_LIST:.c=.o}
 OBJS_LIST_B= ${SRCS_LIST_B:.c=.o}

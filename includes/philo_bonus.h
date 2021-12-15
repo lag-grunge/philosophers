@@ -104,4 +104,6 @@ int		ft_atoi(char *s);
 int 	ft_strlen(char *s);
 void	u_sleep(int mseconds);
 
+int kill_em(t_dinner *dinner);
+
 #endif

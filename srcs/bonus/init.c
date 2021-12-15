@@ -4,6 +4,7 @@ sem_t	*my_sem_open(char *filename, int value)
 {
 	sem_t *s;
 
+	errno = 0;
 	s = sem_open(filename, O_CREAT | O_EXCL, 0666, value);
 	if (s != SEM_FAILED)
 		return (s);
@@ -28,7 +29,7 @@ void get_rules(t_rules *rules, char *argv[])
 		rules->limit_eats = ft_atoi(argv[5]);
 		rules->stop_lim = my_sem_open("stop_lim", 0);
 	}
-	rules->stop_die = my_sem_open("stop_die", 1);
+	rules->stop_die = my_sem_open("stop_die", 0);
 	rules->dashboard = my_sem_open("dashboard", 1);
 	rules->actions[0] = trying_forks;
 	rules->actions[1] = trying_forks;
@@ -42,7 +43,7 @@ void get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 	int	i;
 	t_philo *p;
 
-	p = (t_philo *) malloc(sizeof(t_philo) * philo_num);
+	p = (t_philo *)malloc(sizeof(t_philo) * philo_num);
 	i = 0;
 	while (i < philo_num)
 	{

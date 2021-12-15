@@ -16,7 +16,11 @@ void * ft_process(void *args)
 			philo->eat_num++;	
 			if (philo->rules->limit_eats > -1  && \
 				philo->eat_num == philo->rules->limit_eats)
+			{
+				sem_wait(philo->rules->stop_lim);
 				sem_post(philo->rules->stop_lim);
+				sem_wait(philo->rules->stop_lim);
+			}
 		}
 		i++;
 	}
@@ -46,11 +50,12 @@ void	dinner_start(t_dinner *dinner)
 		else
 			i++;
 	}
-	if (dinner->rules.stop_lim)
+	if (!sem_wait(dinner->rules.stop_lim))
 	{
 		pthread_create(&time_ctrl, NULL, waiter_lim, dinner);
 		pthread_detach(time_ctrl);
 	}
+	printf("%d\n", errno);
 	pthread_create(&time_ctrl, NULL, waiter_die, dinner);
 	pthread_detach(time_ctrl);
 }
@@ -81,7 +86,6 @@ void stop_dinner(t_dinner *dinner)
 void *waiter_die(void *args)
 {
 	t_dinner 	*dinner;
-	int			i;
 	int 		timestamp;
 
 	dinner = args;
@@ -96,12 +100,7 @@ void *waiter_die(void *args)
 			if (get_cur_time(&dinner->rules, 0) - timestamp >= \
 					MIN_TIME)
 			{
-				i = 0;
-				while (i < dinner->philo_num)
-				{
-					kill(dinner->philos[i].pid, SIGKILL);
-					i++;
-				}
+				kill_em(dinner);
 				return (NULL);
 			}
 			u_sleep(MIN_TIME);
@@ -119,7 +118,7 @@ void *waiter_lim(void *args)
 	dinner = args;
 	u_sleep(WAITER_LIM_LAG);
 	i = 0;
-	while (i < dinner->philo_num)
+	while (i < dinner->philo_num - 1)
 	{
 		ret = sem_wait(dinner->rules.stop_lim);
 		if (!ret)
