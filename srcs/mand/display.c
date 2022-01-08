@@ -9,10 +9,9 @@ void display_message(int timestamp, t_philo *philo, int msg)
 			printf("%d %d died\n", timestamp, philo->id);
 		else if (msg == lim)
 			printf("%d philosophers has eaten at least %d\n", timestamp, philo->rules->limit_eats);
-		pthread_mutex_unlock(philo->rules->dashboard);
 		return ;
 	}
-	else if (msg == frk1 || msg == frk2)
+	else if (msg == frk1)
 		printf("%d %d has taken a fork\n", timestamp, philo->id);
 	else if (msg == eat)
 		printf("%d %d is eating\n", timestamp, philo->id);

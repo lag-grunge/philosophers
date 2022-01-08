@@ -11,9 +11,9 @@ SRCS_DIR = ./srcs/mand
 SRCS_DIR_B= ./srcs/bonus
 DIRS = ${OBJS_DIR_CMN} ${OBJS_DIR} ${OBJS_DIR_B}
 
-SRCS_LIST_CMN = utils.c main.c
-SRCS_LIST = init.c control.c routine.c display.c
-SRCS_LIST_B = init.c control.c routine.c display.c utils2.c
+SRCS_LIST_CMN = ft_atoi.c
+SRCS_LIST = init.c control.c routine.c  main.c utils.c
+SRCS_LIST_B = init.c control.c routine.c utils.c utils2.c main.c
 OBJS_LIST_CMN = ${SRCS_LIST_CMN:.c=.o}
 OBJS_LIST = ${SRCS_LIST:.c=.o}
 OBJS_LIST_B= ${SRCS_LIST_B:.c=.o}
@@ -23,14 +23,21 @@ OBJS_B = $(addprefix ${OBJS_DIR_B}/,${OBJS_LIST_B})
 DEPS = ${OBJS_CMN:.o=.d} ${OBJS:.o=.d} ${OBJS_B:.o=.d}
 
 INCLUDE = -I${INCL_DIR}
-CFLAGS = -g -Wall -Werror -Wextra -MMD
-LIBRARIES = -lpthread -lphilo
+CFLAGS := -Wall -Werror -Wextra -MMD
+LIBRARIES = -pthread -lphilo
 LDFLAGS = -L.
 
 
 all : ${LIBPHILO} ${NAME}
 bonus : ${LIBPHILO} ${NAME_B}
 bonus : BONUS=1
+dbg : all
+dbg : CFLAGS += -g -fsanitize=address
+dbg : LIBRARIES += -lasan
+dbg_bonus : bonus
+dbg_bonus : CFLAGS += -g -fsanitize=address
+dbg_bonus : LIBRARIES += -lasan
+
 
 ${NAME} : ${OBJS} ${LIBPHILO}
 	${CC} ${INCLUDE} ${LDFLAGS} $(filter-out ${LIBPHILO},$^) -o $@ ${LIBRARIES}

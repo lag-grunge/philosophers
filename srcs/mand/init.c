@@ -1,24 +1,27 @@
 #include "philo.h"
 
-//	записать правила
-void get_rules(t_rules *rules, char *argv[])
+static void	init_mutex(pthread_mutex_t **m)
+{
+	*m = malloc(sizeof(pthread_mutex_t) *  1);
+	if (!*m)
+		exit(malloc_err);
+	pthread_mutex_init(*m, NULL);
+}
+
+void	get_rules(t_rules *rules, char *argv[])
 {
 	pthread_mutex_t *m;
+
+	rules->stop = 0;
+	rules->start_time.tv_sec = 0;
 	rules->time_to_die = ft_atoi(argv[2]);
 	rules->time_to_eat = ft_atoi(argv[3]);
 	rules->time_to_sleep = ft_atoi(argv[4]);
 	rules->limit_eats = -1;
 	if (argv[5])
 		rules->limit_eats = ft_atoi(argv[5]);
-	rules->stop = 0;
-	m = malloc(sizeof(pthread_mutex_t) *  1);
-	pthread_mutex_init(m, NULL);
+	init_mutex(&m);
 	rules->dashboard = m;
-	rules->actions[0] = trying_forks;
-	rules->actions[1] = trying_forks;
-	rules->actions[2] = eating;
-	rules->actions[3] = sleeping;
-	rules->actions[4] = thinking;
 }
 
 void get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
@@ -35,7 +38,9 @@ void get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 		p[i].eat_num = 0;
 		p[i].r_fork = &dinner->forks[i];
 		p[i].l_fork = &dinner->forks[(i + 1) % philo_num];
-		p[i].cur_fork = l_fork;
+		p[i].last = (p[i].id == philo_num);
+		p[i].thinker = philo_num % 2;
+		p[i].last_eat_start = 0;
 		i++;
 	}
 	*philos = p;
