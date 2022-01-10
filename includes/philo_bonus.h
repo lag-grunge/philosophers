@@ -6,7 +6,7 @@
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/30 00:24:00 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/02 11:49:46 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/11 01:18:22 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define PHILO_NUM_ERROR "Philosophers wrong number\n"
 # define WAITER_PERIOD 100
 # define THIRD_GROUP_LAG 2000
+# define EVEN_LAG 2000
 
 enum e_errors {
 	philo_num_error = 1,
@@ -37,27 +38,24 @@ enum e_errors {
 };
 
 enum e_actions {
+	thnk,
 	frk1,
 	eat,
 	slp,
-	thnk,
 	die,
-	lim,
-	tmst,
-	capt,
-	left
+	lim
 };
 
 typedef struct s_rules {
 	struct timeval	start_time;
-	sem_t		*dashboard;
-	sem_t		*stop_die;
-	sem_t		*lim_stop;
-	sem_t		*next;
-	int			time_to_die;
-	int			time_to_eat;
-	int			time_to_sleep;
-	int			limit_eats;
+	sem_t			*dashboard;
+	sem_t			*stop_die;
+	sem_t			*lim_stop;
+	sem_t			*next;
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				limit_eats;
 }			t_rules;
 
 typedef struct s_philo {
@@ -68,6 +66,7 @@ typedef struct s_philo {
 	int				last_eat_start;
 	int				eat_num;
 	int				thinker;
+	int				last;
 }			t_philo;
 
 typedef struct s_dinner {
@@ -85,7 +84,6 @@ void	get_forks(sem_t **forks, int argc);
 void	*ft_process(void *args);
 void	dinner_start(t_dinner *dinner);
 void	stop_dinner(t_dinner *dinner);
-void	*waiter(void *args);
 
 void	eating(void *args);
 void	sleeping(void *args);
@@ -96,7 +94,6 @@ void	*waiter_die(void *args);
 void	*waiter_lim(void *args);
 
 int		get_cur_time(t_rules *rules);
-void	display_message(int timestamp, t_philo *philo, int msg);
 int		ft_atoi(char *s);
 int		ft_strlen(char *s);
 void	u_sleep(int mseconds);

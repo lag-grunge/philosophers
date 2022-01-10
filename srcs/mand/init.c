@@ -1,33 +1,54 @@
-#include "philo.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/11 02:21:24 by sdalton           #+#    #+#             */
+/*   Updated: 2022/01/11 02:32:07 by sdalton          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../../includes/philo.h"
 
 static void	init_mutex(pthread_mutex_t **m)
 {
-	*m = malloc(sizeof(pthread_mutex_t) *  1);
+	*m = malloc(sizeof(pthread_mutex_t) * 1);
 	if (!*m)
 		exit(malloc_err);
 	pthread_mutex_init(*m, NULL);
 }
 
-void	get_rules(t_rules *rules, char *argv[])
+void	get_rules(t_rules *rules, int philo_num, char *argv[])
 {
-	pthread_mutex_t *m;
+	pthread_mutex_t	*m;
 
 	rules->stop = 0;
 	rules->start_time.tv_sec = 0;
 	rules->time_to_die = ft_atoi(argv[2]);
 	rules->time_to_eat = ft_atoi(argv[3]);
 	rules->time_to_sleep = ft_atoi(argv[4]);
+	rules->philo_num = philo_num;
+	rules->states = (int *)malloc(sizeof(int) * philo_num);
+	if (!rules->states)
+		exit(malloc_err);
+	memset((char *)rules->states, 0, sizeof(int) * philo_num);
 	rules->limit_eats = -1;
 	if (argv[5])
 		rules->limit_eats = ft_atoi(argv[5]);
 	init_mutex(&m);
 	rules->dashboard = m;
+	init_mutex(&m);
+	rules->state_mut = m;
+	init_mutex_arr(&rules->eat_mut, philo_num, 1);
+	rules->time_ctrl = 0;
 }
 
-void get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
+void	get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 {
-	int	i;
-	t_philo *p;
+	t_philo	*p;
+	int		i;
 
 	p = (t_philo *) malloc(sizeof(t_philo) * philo_num);
 	i = 0;
@@ -46,17 +67,25 @@ void get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 	*philos = p;
 }
 
-void get_forks(pthread_mutex_t **forks, int argc)
+void	init_mutex_arr(pthread_mutex_t **mut_arr, int philo_num, int lock)
 {
-	int i;
-	pthread_mutex_t *m;
+	pthread_mutex_t	*m;
+	int				i;
 
-	m = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * argc);
+	m = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * philo_num);
 	i = 0;
-	while (i < argc)
+	while (i < philo_num)
 	{
 		pthread_mutex_init(&m[i], NULL);
 		i++;
 	}
-	*forks = m;
+	*mut_arr = m;
+	if (!lock)
+		return ;
+	i = 0;
+	while (i < philo_num)
+	{
+		pthread_mutex_lock(m + i);
+		i++;
+	}
 }

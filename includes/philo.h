@@ -6,7 +6,7 @@
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/28 23:02:14 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/02 11:46:45 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/11 01:16:40 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,15 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
+# include <string.h>
 # include <limits.h>
 # define ARG_ERROR "Usage: ./philo number_of_philosophers time_to_die time_to_eat\n\
 time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define PHILO_NUM_ERROR "Philosophers wrong number\n"
 # define WAITER_PERIOD 100
 # define WAITER_LAG 60000
-# define EVEN_LAG 10000
-# define THIRD_GROUP_LAG 10000
+# define EVEN_LAG 2000
+# define THIRD_GROUP_LAG 2000
 
 enum e_errors {
 	philo_num_error = 1,
@@ -33,10 +34,10 @@ enum e_errors {
 };
 
 enum e_actions {
+	thnk,
 	frk1,
 	eat,
 	slp,
-	thnk,
 	die,
 	lim
 };
@@ -51,13 +52,18 @@ typedef unsigned int				t_uint;
 
 typedef struct s_rules {
 	pthread_mutex_t		*dashboard;
+	pthread_mutex_t		*state_mut;
+	pthread_mutex_t		*eat_mut;
+	struct timeval		start_time;
+	struct s_philo		*philos;
 	pthread_t			time_ctrl;
-	struct timeval			start_time;
 	int					stop;
 	int					time_to_die;
 	int					time_to_eat;
 	int					time_to_sleep;
 	int					limit_eats;
+	int					philo_num;
+	int					*states;
 }		t_rules;
 typedef struct s_philo {
 	pthread_mutex_t		*l_fork;
@@ -78,9 +84,9 @@ typedef struct s_dinner {
 }		t_dinner;
 
 int		get_philos_num(char *s);
-void	get_rules(t_rules *rules, char *argv[]);
+void	get_rules(t_rules *rules, int philo_num, char *argv[]);
 void	get_philos(t_philo **philos, int philo_num, t_dinner *dinner);
-void	get_forks(pthread_mutex_t **forks, int argc);
+void	init_mutex_arr(pthread_mutex_t **mut_arr, int philo_num, int lock);
 
 void	*ft_process(void *args);
 void	dinner_start(t_dinner *dinner);
@@ -94,9 +100,14 @@ void	thinking(void *args);
 void	trying_forks(void *args);
 
 int		get_cur_time(t_rules *rules);
-void	display_message(int timestamp, t_philo *philo, int msg);
 int		ft_atoi(char *s);
 int		ft_strlen(char *s);
 void	u_sleep(int mseconds);
+
+int		left_id(t_philo *philo, int i);
+int		right_id(t_philo *philo, int i);
+t_philo	*right_philo(t_philo *philo, int i);
+t_philo	*left_philo(t_philo *philo, int i);
+void	test(t_philo *philo);
 
 #endif

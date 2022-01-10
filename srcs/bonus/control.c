@@ -1,15 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   control.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/11 01:26:24 by sdalton           #+#    #+#             */
+/*   Updated: 2022/01/11 01:33:34 by sdalton          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../includes/philo_bonus.h"
 
-void * ft_process(void *args)
+void	*ft_process(void *args)
 {
-	t_philo	*philo;
-	pthread_t time_ctrl;
+	pthread_t	time_ctrl;
+	t_philo		*philo;
 
 	philo = args;
 	philo->last_eat_start = 0;
 	if (philo->rules->limit_eats == 0)
+	{
 		sem_post(philo->rules->lim_stop);
-	gettimeofday(&philo->rules->start_time, NULL);
+		exit(0);
+	}
+	u_sleep((philo->id % 2 == 0) * EVEN_LAG);
 	pthread_create(&time_ctrl, NULL, waiter_die, philo);
 	pthread_detach(time_ctrl);
 	while (1)
@@ -17,7 +32,7 @@ void * ft_process(void *args)
 		trying_forks(philo);
 		eating(philo);
 		philo->eat_num++;
-		if (philo->rules->limit_eats > -1  && \
+		if (philo->rules->limit_eats > -1 && \
 			philo->eat_num == philo->rules->limit_eats)
 			sem_post(philo->rules->lim_stop);
 		sleeping(philo);
@@ -26,13 +41,13 @@ void * ft_process(void *args)
 	return (NULL);
 }
 
-
 void	dinner_start(t_dinner *dinner)
 {
-	int			i;
 	pthread_t	time_ctrl;
+	int			i;
 
 	i = 0;
+	gettimeofday(&dinner->rules.start_time, NULL);
 	while (i < dinner->philo_num)
 	{
 		dinner->philos[i].pid = fork();
@@ -53,7 +68,7 @@ void	dinner_start(t_dinner *dinner)
 	}
 }
 
-void stop_dinner(t_dinner *dinner)
+void	stop_dinner(t_dinner *dinner)
 {
 	sem_wait(dinner->rules.stop_die);
 	kill_em(dinner);
@@ -77,19 +92,18 @@ void stop_dinner(t_dinner *dinner)
 	free(dinner);
 }
 
-void *waiter_die(void *args)
+void	*waiter_die(void *args)
 {
 	t_philo	*philo;
-	int timestamp;
+	int		timestamp;
 
 	philo = args;
 	u_sleep(philo->rules->time_to_die * 1000);
 	while (1)
 	{
-
 		timestamp = get_cur_time(philo->rules);
 		if (philo->rules->time_to_die < \
-				timestamp - philo->last_eat_start)	
+		timestamp - philo->last_eat_start)
 		{
 			sem_wait(philo->rules->dashboard);
 			printf("%d %d died\n", timestamp, philo->id);
@@ -100,9 +114,9 @@ void *waiter_die(void *args)
 	}
 }
 
-void *waiter_lim(void *args)
+void	*waiter_lim(void *args)
 {
-	t_dinner 	*dinner;
+	t_dinner	*dinner;
 	int			i;
 
 	dinner = args;
@@ -113,8 +127,8 @@ void *waiter_lim(void *args)
 		i++;
 	}
 	sem_wait(dinner->rules.dashboard);
-	printf("%d philosophers has eaten at least %d\n", get_cur_time(&dinner->rules), dinner->rules.limit_eats);
+	printf("%d philosophers has eaten at least %d\n", \
+			get_cur_time(&dinner->rules), dinner->rules.limit_eats);
 	sem_post(dinner->rules.stop_die);
 	return (NULL);
 }
-

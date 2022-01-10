@@ -1,19 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_atoi.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/11 02:34:09 by sdalton           #+#    #+#             */
+/*   Updated: 2022/01/11 02:35:44 by sdalton          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-static int charisdigit(char c) 
+static int	charisdigit(char c)
 {
 	return ((c >= 48) && (c <= 57));
 }
 
-static int charisspace(char c) 
+static int	charisspace(char c)
 {
 	return (((c >= 9) && (c <= 13)) || c == 32);
 }
 
 int	ft_atoi(char *s)
 {
-	long long int	n;
-	int			sign;
+	long long int		n;
+	int					sign;
 
 	n = 0;
 	sign = 1;
@@ -35,4 +47,3 @@ int	ft_atoi(char *s)
 	n = n * sign;
 	return (n);
 }
-

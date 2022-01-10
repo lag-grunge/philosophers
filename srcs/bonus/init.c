@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/11 01:35:04 by sdalton           #+#    #+#             */
+/*   Updated: 2022/01/11 01:36:41 by sdalton          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../includes/philo_bonus.h"
 
 sem_t	*my_sem_open(char *filename, int value)
 {
-	sem_t *s;
+	sem_t	*s;
 
 	sem_unlink(filename);
 	s = sem_open(filename, O_CREAT | O_EXCL, 0666, value);
@@ -11,7 +23,7 @@ sem_t	*my_sem_open(char *filename, int value)
 	return (s);
 }
 
-void get_rules(t_rules *rules, int philo_num, char *argv[])
+void	get_rules(t_rules *rules, int philo_num, char *argv[])
 {
 	rules->time_to_die = ft_atoi(argv[2]);
 	rules->time_to_eat = ft_atoi(argv[3]);
@@ -24,16 +36,16 @@ void get_rules(t_rules *rules, int philo_num, char *argv[])
 	rules->lim_stop = NULL;
 	if (rules->limit_eats > -1)
 		rules->lim_stop = my_sem_open("lim_stop", 0);
-	rules->next = NULL;
-	if (philo_num % 2)
+	if (philo_num == 1)
 		rules->next = my_sem_open("next", 1);
-	
+	else
+		rules->next = my_sem_open("next", philo_num / 2);
 }
 
-void get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
+void	get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 {
-	int	i;
-	t_philo *p;
+	t_philo	*p;
+	int		i;
 
 	p = (t_philo *)malloc(sizeof(t_philo) * philo_num);
 	i = 0;
@@ -49,7 +61,7 @@ void get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 	*philos = p;
 }
 
-void get_forks(sem_t **forks, int argc)
+void	get_forks(sem_t **forks, int argc)
 {
 	*forks = my_sem_open("forks", argc);
 	if (*forks == SEM_FAILED)
