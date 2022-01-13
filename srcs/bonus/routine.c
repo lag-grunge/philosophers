@@ -18,11 +18,11 @@ int	eating(void *args)
 	int		timestamp;
 
 	philo = args;
-	if (philo->stop)
-		return (1);
 	timestamp = get_cur_time(philo->rules);
 	philo->last_eat_start = timestamp;
 	sem_wait(philo->rules->dashboard);
+	if (philo->stop)
+		return (1);
 	printf("%d %d is eating\n", timestamp, philo->id);
 	sem_post(philo->rules->dashboard);
 	u_sleep(philo->rules->time_to_eat * 1000);
@@ -42,39 +42,44 @@ int	sleeping(void *args)
 	int		timestamp;
 
 	philo = args;
-	if (philo->stop)
-		return (1);
 	timestamp = get_cur_time(philo->rules);
 	sem_wait(philo->rules->dashboard);
+	if (philo->stop)
+		return (1);
 	printf("%d %d is sleeping\n", timestamp, philo->id);
 	sem_post(philo->rules->dashboard);
 	u_sleep(philo->rules->time_to_sleep * 1000);
 	return (0);
 }
 
+static int	get_fork(t_philo *philo)
+{
+	int	timestamp;
+
+	if (philo->stop)
+		return (1);
+	sem_wait(philo->forks);
+	timestamp = get_cur_time(philo->rules);
+	sem_wait(philo->rules->dashboard);
+	if (philo->stop)
+		return (1);
+	printf("%d %d has taken a fork\n", timestamp, philo->id);
+	sem_post(philo->rules->dashboard);
+	return (0);
+}
+
 int	trying_forks(void *args)
 {
 	t_philo	*philo;
-	int		timestamp;
 
 	philo = args;
-	if (philo->stop)
-		return (1);
 	sem_wait(philo->rules->next);
-	if (philo->stop)
+	if (get_fork(philo))
 		return (1);
-	sem_wait(philo->forks);
-	timestamp = get_cur_time(philo->rules);
-	sem_wait(philo->rules->dashboard);
-	printf("%d %d has taken a fork\n", timestamp, philo->id);
-	sem_post(philo->rules->dashboard);
 	if (philo->stop || philo->philo_num == 1)
 		return (1);
-	sem_wait(philo->forks);
-	timestamp = get_cur_time(philo->rules);
-	sem_wait(philo->rules->dashboard);
-	printf("%d %d has taken a fork\n", timestamp, philo->id);
-	sem_post(philo->rules->dashboard);
+	if (get_fork(philo))
+		return (1);
 	return (0);
 }
 
@@ -82,21 +87,13 @@ int	thinking(void *args)
 {
 	t_philo	*philo;
 	int		timestamp;
-	int		more;
 
 	philo = args;
-	if (philo->stop)
-		return (1);
 	timestamp = get_cur_time(philo->rules);
 	sem_wait(philo->rules->dashboard);
+	if (philo->stop)
+		return (1);
 	printf("%d %d is thinking\n", timestamp, philo->id);
 	sem_post(philo->rules->dashboard);
-	more = (philo->rules->time_to_eat - philo->rules->time_to_sleep);
-	if (philo->thinker && more >= 0)
-	{
-		if (more > 0)
-			u_sleep(more * 1000);
-		u_sleep(THIRD_GROUP_LAG);
-	}
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 01:37:20 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/13 01:19:24 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/13 10:12:26 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,18 @@ int	ft_strlen(char *s)
 	while (s[i])
 		i++;
 	return (i);
+}
+
+int	get_time_param(char *s)
+{
+	int	t;
+
+	t = ft_atoi(s);
+	if (t >= MIN_TIME)
+		return (t);
+	write(STDERR_FILENO, TIME_PARAM_ERROR, \
+			ft_strlen(TIME_PARAM_ERROR));
+	exit (time_param_error);
 }
 
 int	get_philos_num(char *s)
@@ -65,25 +77,5 @@ void	u_sleep(int mseconds)
 		usleep(40);
 		gettimeofday(&tv, NULL);
 		cur = tv.tv_usec + tv.tv_sec * 1000000;
-	}
-}
-
-void	close_sems(t_dinner *dinner)
-{
-	sem_close(dinner->forks);
-	sem_unlink("forks");
-	sem_close(dinner->rules.stop_die);
-	sem_unlink("stop_die");
-	sem_close(dinner->rules.dashboard);
-	sem_unlink("dashboard");
-	if (dinner->rules.lim_stop)
-	{
-		sem_close(dinner->rules.lim_stop);
-		sem_unlink("lim_stop");
-	}
-	if (dinner->philo_num % 2)
-	{
-		sem_close(dinner->rules.next);
-		sem_unlink("next");
 	}
 }

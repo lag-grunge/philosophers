@@ -6,7 +6,7 @@
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 02:33:03 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/11 02:33:53 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/13 10:16:57 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,18 @@ int	ft_strlen(char *s)
 	while (s[i])
 		i++;
 	return (i);
+}
+
+int	get_time_param(char *s)
+{
+	int	t;
+
+	t = ft_atoi(s);
+	if (t >= MIN_TIME)
+		return (t);
+	write(STDERR_FILENO, TIME_PARAM_ERROR, \
+			ft_strlen(TIME_PARAM_ERROR));
+	exit (time_param_error);
 }
 
 int	get_philos_num(char *s)

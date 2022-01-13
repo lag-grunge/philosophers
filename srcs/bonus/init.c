@@ -6,7 +6,7 @@
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 01:35:04 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/11 01:36:41 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/13 10:13:51 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ sem_t	*my_sem_open(char *filename, int value)
 
 void	get_rules(t_rules *rules, int philo_num, char *argv[])
 {
-	rules->time_to_die = ft_atoi(argv[2]);
-	rules->time_to_eat = ft_atoi(argv[3]);
-	rules->time_to_sleep = ft_atoi(argv[4]);
+	rules->time_to_die = get_time_param(argv[2]);
+	rules->time_to_eat = get_time_param(argv[3]);
+	rules->time_to_sleep = get_time_param(argv[4]);
 	rules->limit_eats = -1;
 	if (argv[5])
 		rules->limit_eats = ft_atoi(argv[5]);
@@ -58,7 +58,6 @@ void	get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 		p[i].rules = &dinner->rules;
 		p[i].eat_num = 0;
 		p[i].forks = dinner->forks;
-		p[i].thinker = philo_num % 2;
 		p[i].last_eat_start = 0;
 		p[i].stop = 0;
 		p[i].philo_num = philo_num;
@@ -72,4 +71,24 @@ void	get_forks(sem_t **forks, int argc)
 	*forks = my_sem_open("forks", argc);
 	if (*forks == SEM_FAILED)
 		exit (3);
+}
+
+void	close_sems(t_dinner *dinner)
+{
+	sem_close(dinner->forks);
+	sem_unlink("forks");
+	sem_close(dinner->rules.stop_die);
+	sem_unlink("stop_die");
+	sem_close(dinner->rules.dashboard);
+	sem_unlink("dashboard");
+	if (dinner->rules.lim_stop)
+	{
+		sem_close(dinner->rules.lim_stop);
+		sem_unlink("lim_stop");
+	}
+	if (dinner->philo_num % 2)
+	{
+		sem_close(dinner->rules.next);
+		sem_unlink("next");
+	}
 }

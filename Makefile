@@ -13,7 +13,7 @@ DIRS = ${OBJS_DIR_CMN} ${OBJS_DIR} ${OBJS_DIR_B}
 
 SRCS_LIST_CMN = ft_atoi.c
 SRCS_LIST = init.c control.c routine.c main.c utils.c test.c
-SRCS_LIST_B = init.c control.c philo_control.c routine.c utils_bonus.c main.c
+SRCS_LIST_B = init.c control.c philo_control.c philo_control_utils.c routine.c utils_bonus.c main.c
 OBJS_LIST_CMN = ${SRCS_LIST_CMN:.c=.o}
 OBJS_LIST = ${SRCS_LIST:.c=.o}
 OBJS_LIST_B= ${SRCS_LIST_B:.c=.o}

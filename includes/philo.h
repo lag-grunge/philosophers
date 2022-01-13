@@ -22,13 +22,16 @@
 # define ARG_ERROR "Usage: ./philo number_of_philosophers time_to_die time_to_eat\n\
 time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define PHILO_NUM_ERROR "Philosophers wrong number\n"
+# define TIME_PARAM_ERROR "Wrong time parameter\n"
 # define WAITER_PERIOD 100
 # define WAITER_LAG 60000
 # define EVEN_LAG 2000
 # define THIRD_GROUP_LAG 2000
+# define MIN_TIME 60
 
 enum e_errors {
 	philo_num_error = 1,
+	time_param_error,
 	pthread_create_error,
 	malloc_err
 };
@@ -75,7 +78,6 @@ typedef struct s_philo {
 	int					last_eat_start;
 	int					eat_num;
 	int					last;
-	int					thinker;
 }		t_philo;
 typedef struct s_dinner {
 	pthread_mutex_t		*forks;
@@ -104,6 +106,7 @@ int		get_cur_time(t_rules *rules);
 int		ft_atoi(char *s);
 int		ft_strlen(char *s);
 void	u_sleep(int mseconds);
+int		get_time_param(char *s);
 
 int		left_id(t_philo *philo, int i);
 int		right_id(t_philo *philo, int i);

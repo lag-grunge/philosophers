@@ -26,9 +26,9 @@ void	get_rules(t_rules *rules, int philo_num, char *argv[])
 
 	rules->stop = 0;
 	rules->start_time.tv_sec = 0;
-	rules->time_to_die = ft_atoi(argv[2]);
-	rules->time_to_eat = ft_atoi(argv[3]);
-	rules->time_to_sleep = ft_atoi(argv[4]);
+	rules->time_to_die = get_time_param(argv[2]);
+	rules->time_to_eat = get_time_param(argv[3]);
+	rules->time_to_sleep = get_time_param(argv[4]);
 	rules->philo_num = philo_num;
 	rules->states = (int *)malloc(sizeof(int) * philo_num);
 	if (!rules->states)
@@ -60,7 +60,6 @@ void	get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 		p[i].r_fork = &dinner->forks[i];
 		p[i].l_fork = &dinner->forks[(i + 1) % philo_num];
 		p[i].last = (p[i].id == philo_num);
-		p[i].thinker = philo_num % 2;
 		p[i].last_eat_start = 0;
 		i++;
 	}

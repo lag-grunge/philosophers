@@ -6,7 +6,7 @@
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 01:45:09 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/13 03:58:48 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/13 10:16:34 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,27 +16,28 @@ void	*ft_process(void *args)
 {
 	t_philo		*philo;
 	int			(*func[4])(void *);
-	int			(*cur_action)(void *);
 	int			i;
 
 	philo = args;
 	while (!philo->rules->start_time.tv_sec)
 		usleep(10);
 	if (philo->rules->started_philos < philo->rules->philo_num)
-		exit(0);
+		return (NULL);
 	u_sleep((philo->id % 2 == 0 || philo->last) * EVEN_LAG);
 	func[0] = trying_forks;
 	func[1] = eating;
 	func[2] = sleeping;
 	func[3] = thinking;
-	cur_action = trying_forks;
-	i = 0;
-	while (!cur_action(philo))
-	{
-		i++;
-		i %= 4;
-		cur_action = func[i];
-	}
+	while (!philo->rules->stop && !func[i++ % 4](philo))
+		;
+	pthread_mutex_unlock(&philo->rules->eat_mut \
+	[left_id(philo, philo->id) - 1]);
+	pthread_mutex_unlock(&philo->rules->eat_mut \
+	[right_id(philo, philo->id) - 1]);
+	pthread_mutex_unlock(philo->rules->state_mut);
+	pthread_mutex_unlock(philo->rules->dashboard);
+	pthread_mutex_unlock(philo->l_fork);
+	pthread_mutex_unlock(philo->r_fork);
 	return (NULL);
 }
 

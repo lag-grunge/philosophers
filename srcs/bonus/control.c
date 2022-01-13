@@ -6,7 +6,7 @@
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 01:26:24 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/13 03:17:18 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/13 10:12:46 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ int	dinner_start(t_dinner *dinner)
 	return (0);
 }
 
-int	wait_child(t_dinner *dinner)
+static int	wait_child(t_dinner *dinner)
 {
 	int	i;
 	int	j;
