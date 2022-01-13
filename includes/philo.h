@@ -26,7 +26,6 @@ time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define WAITER_PERIOD 100
 # define WAITER_LAG 60000
 # define EVEN_LAG 2000
-# define THIRD_GROUP_LAG 2000
 # define MIN_TIME 60
 
 enum e_errors {

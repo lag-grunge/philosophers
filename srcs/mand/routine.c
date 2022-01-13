@@ -34,7 +34,8 @@ int	eating(void *args)
 	pthread_mutex_lock(philo->rules->state_mut);
 	philo->rules->states[philo->id - 1] = thnk;
 	test(left_philo(philo, philo->id));
-	usleep(philo->rules->philo_num % 2 * 100);
+	if (philo->rules->philo_num % 2)
+		usleep(EVEN_LAG);
 	test(right_philo(philo, philo->id));
 	pthread_mutex_unlock(philo->rules->state_mut);
 	return (0);
