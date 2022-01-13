@@ -28,6 +28,7 @@ void	*ft_process(void *args)
 	func[1] = eating;
 	func[2] = sleeping;
 	func[3] = thinking;
+	i = 0;
 	while (!philo->rules->stop && !func[i++ % 4](philo))
 		;
 	pthread_mutex_unlock(&philo->rules->eat_mut \
