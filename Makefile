@@ -1,6 +1,5 @@
 NAME = philo
 NAME_B = philo_bonus
-LIBPHILO = libphilo.a
 
 OBJS_DIR_CMN = ./objs
 OBJS_DIR = ./objs/mand
@@ -23,13 +22,11 @@ OBJS_B = $(addprefix ${OBJS_DIR_B}/,${OBJS_LIST_B})
 DEPS = ${OBJS_CMN:.o=.d} ${OBJS:.o=.d} ${OBJS_B:.o=.d}
 
 INCLUDE = -I${INCL_DIR}
-CFLAGS := -g -Wall -Werror -Wextra -MMD
-LIBRARIES = -pthread -lphilo
-LDFLAGS = -L.
+CFLAGS := -Wall -Werror -Wextra -MMD
+LIBRARIES = -pthread 
 
-
-all : ${LIBPHILO} ${NAME}
-bonus : ${LIBPHILO} ${NAME_B}
+all : ${NAME}
+bonus : ${NAME_B}
 bonus : BONUS=1
 dbg : all
 dbg : CFLAGS += -g -fsanitize=address
@@ -39,14 +36,11 @@ dbg_bonus : CFLAGS += -g -fsanitize=address
 dbg_bonus : LIBRARIES += -lasan
 
 
-${NAME} : ${OBJS} ${LIBPHILO}
-	${CC} ${INCLUDE} ${LDFLAGS} $(filter-out ${LIBPHILO},$^) -o $@ ${LIBRARIES}
+${NAME} : ${OBJS} ${OBJS_CMN} 	
+	${CC} ${INCLUDE} $(filter-out ${LIBPHILO},$^) -o $@ ${LIBRARIES}
 
-${NAME_B} : ${OBJS_B} ${LIBPHILO}
-	${CC} ${INCLUDE} ${LDFLAGS} $(filter-out ${LIBPHILO},$^) -o $@ ${LIBRARIES}
-
-${LIBPHILO} : ${OBJS_CMN}
-	ar rcs $@ $?
+${NAME_B} : ${OBJS} ${OBJS_CMN} 	
+	${CC} ${INCLUDE} $(filter-out ${LIBPHILO},$^) -o $@ ${LIBRARIES}
 
 ${OBJS_CMN} ${OBJS} ${OBJS_B} : | ${DIRS}
 
