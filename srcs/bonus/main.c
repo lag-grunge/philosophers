@@ -6,7 +6,7 @@
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 01:34:02 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/11 02:13:57 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/13 03:18:16 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 int	main(int argc, char *argv[])
 {
 	t_dinner	*dinner;
+	int			start;
 
 	if (argc < 5 || argc > 6)
 	{
@@ -27,7 +28,6 @@ int	main(int argc, char *argv[])
 	get_rules(&dinner->rules, dinner->philo_num, argv);
 	get_forks(&dinner->forks, dinner->philo_num);
 	get_philos(&dinner->philos, dinner->philo_num, dinner);
-	dinner_start(dinner);
-	stop_dinner(dinner);
-	return (0);
+	start = dinner_start(dinner);
+	return (stop_dinner(dinner, start));
 }

@@ -6,112 +6,90 @@
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 01:26:24 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/11 01:33:34 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/13 03:17:18 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/philo_bonus.h"
 
-void	*ft_process(void *args)
+static int	fork_start(pid_t *pid, void *(*func)(void *), void *args)
 {
-	pthread_t	time_ctrl;
-	t_philo		*philo;
-
-	philo = args;
-	philo->last_eat_start = 0;
-	if (philo->rules->limit_eats == 0)
+	*pid = fork();
+	if (*pid < 0)
+		return (fork_create_error);
+	else if (*pid == 0)
 	{
-		sem_post(philo->rules->lim_stop);
-		exit(0);
+		func(args);
+		exit (0);
 	}
-	u_sleep((philo->id % 2 == 0) * EVEN_LAG);
-	pthread_create(&time_ctrl, NULL, waiter_die, philo);
-	pthread_detach(time_ctrl);
-	while (1)
-	{
-		trying_forks(philo);
-		eating(philo);
-		philo->eat_num++;
-		if (philo->rules->limit_eats > -1 && \
-			philo->eat_num == philo->rules->limit_eats)
-			sem_post(philo->rules->lim_stop);
-		sleeping(philo);
-		thinking(philo);
-	}
-	return (NULL);
+	return (0);
 }
 
-void	dinner_start(t_dinner *dinner)
+int	dinner_start(t_dinner *dinner)
 {
-	pthread_t	time_ctrl;
 	int			i;
+	int			ret;
 
-	i = 0;
 	gettimeofday(&dinner->rules.start_time, NULL);
+	i = 0;
+	ret = 0;
+	if (dinner->rules.limit_eats != -1)
+		ret = fork_start(&dinner->rules.eat_ctrl, waiter_lim, dinner);
+	if (ret)
+		return (ret);
 	while (i < dinner->philo_num)
 	{
-		dinner->philos[i].pid = fork();
-		if (dinner->philos[i].pid < 0)
+		ret = fork_start(&dinner->philos[i].pid, \
+				ft_process, dinner->philos + i);
+		if (ret)
 		{
-			free(dinner->philos);
-			exit(fork_create_error);
+			dinner->philo_num = i;
+			return (ret);
 		}
-		else if (dinner->philos[i].pid == 0)
-			ft_process(dinner->philos + i);
-		else
-			i++;
+		i++;
 	}
-	if (dinner->rules.limit_eats > -1)
-	{
-		pthread_create(&time_ctrl, NULL, waiter_lim, dinner);
-		pthread_detach(time_ctrl);
-	}
+	return (0);
 }
 
-void	stop_dinner(t_dinner *dinner)
+int	wait_child(t_dinner *dinner)
 {
-	sem_wait(dinner->rules.stop_die);
-	kill_em(dinner);
-	sem_close(dinner->forks);
-	sem_unlink("forks");
-	sem_close(dinner->rules.stop_die);
-	sem_unlink("stop_die");
-	sem_close(dinner->rules.dashboard);
-	sem_unlink("dashboard");
+	int	i;
+	int	j;
+	int	ret;
+
+	i = dinner->philo_num;
+	i += (dinner->rules.eat_ctrl > 0);
+	ret = 0;
+	while (i)
+	{
+		j = i;
+		while (j)
+		{
+			if (waitpid(-1, &ret, WNOHANG))
+				i--;
+			if (WEXITSTATUS(ret) == pthread_create_error)
+				ret = pthread_create_error;
+			j--;
+		}
+		usleep(WAITER_PERIOD);
+	}
+	return (ret);
+}
+
+int	stop_dinner(t_dinner *dinner, int start)
+{
+	int	ret;
+
+	ret = 0;
+	if (start == fork_create_error)
+		kill(-1, SIGKILL);
+	ret = wait_child(dinner);
+	close_sems(dinner);
 	free(dinner->philos);
-	if (dinner->rules.lim_stop)
-	{
-		sem_close(dinner->rules.lim_stop);
-		sem_unlink("lim_stop");
-	}
-	if (dinner->philo_num % 2)
-	{
-		sem_close(dinner->rules.next);
-		sem_unlink("next");
-	}
 	free(dinner);
-}
-
-void	*waiter_die(void *args)
-{
-	t_philo	*philo;
-	int		timestamp;
-
-	philo = args;
-	u_sleep(philo->rules->time_to_die * 1000);
-	while (1)
-	{
-		timestamp = get_cur_time(philo->rules);
-		if (philo->rules->time_to_die < \
-		timestamp - philo->last_eat_start)
-		{
-			sem_wait(philo->rules->dashboard);
-			printf("%d %d died\n", timestamp, philo->id);
-			sem_post(philo->rules->stop_die);
-			exit (0);
-		}
-		u_sleep(WAITER_PERIOD);
-	}
+	if (start)
+		return (start);
+	return (ret);
 }
 
 void	*waiter_lim(void *args)
@@ -128,7 +106,12 @@ void	*waiter_lim(void *args)
 	}
 	sem_wait(dinner->rules.dashboard);
 	printf("%d philosophers has eaten at least %d\n", \
-			get_cur_time(&dinner->rules), dinner->rules.limit_eats);
-	sem_post(dinner->rules.stop_die);
+		get_cur_time(&dinner->rules), dinner->rules.limit_eats);
+	i = 0;
+	while (i < dinner->philo_num)
+	{
+		sem_post(dinner->rules.stop_die);
+		i++;
+	}
 	return (NULL);
 }

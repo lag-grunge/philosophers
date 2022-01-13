@@ -6,7 +6,7 @@
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 01:45:09 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/11 02:16:08 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/13 03:58:48 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,28 @@
 
 void	*ft_process(void *args)
 {
-	t_philo	*philo;
+	t_philo		*philo;
+	int			(*func[4])(void *);
+	int			(*cur_action)(void *);
+	int			i;
 
 	philo = args;
 	while (!philo->rules->start_time.tv_sec)
 		usleep(10);
+	if (philo->rules->started_philos < philo->rules->philo_num)
+		exit(0);
 	u_sleep((philo->id % 2 == 0 || philo->last) * EVEN_LAG);
-	while (1)
+	func[0] = trying_forks;
+	func[1] = eating;
+	func[2] = sleeping;
+	func[3] = thinking;
+	cur_action = trying_forks;
+	i = 0;
+	while (!cur_action(philo))
 	{
-		trying_forks(philo);
-		eating(philo);
-		philo->eat_num++;
-		sleeping(philo);
-		thinking(philo);
+		i++;
+		i %= 4;
+		cur_action = func[i];
 	}
 	return (NULL);
 }
@@ -41,14 +50,13 @@ void	dinner_start(t_dinner *dinner)
 	{
 		if (pthread_create(&dinner->philos[i].thread_id, \
 					NULL, ft_process, &dinner->philos[i]))
-		{
-			stop_dinner(dinner);
-			exit(pthread_create_error);
-		}
-		pthread_detach(dinner->philos[i].thread_id);
+			break ;
 		i++;
 	}
+	dinner->rules.started_philos = i;
 	gettimeofday(&dinner->rules.start_time, NULL);
+	if (i < dinner->philo_num)
+		return ;
 	if (dinner->rules.limit_eats > -1)
 	{
 		pthread_create(&time_ctrl, NULL, waiter_lim, dinner);
@@ -61,8 +69,16 @@ void	dinner_start(t_dinner *dinner)
 
 void	stop_dinner(t_dinner *dinner)
 {
+	int	i;
+
 	if (dinner->rules.time_ctrl)
 		pthread_join(dinner->rules.time_ctrl, NULL);
+	i = dinner->rules.started_philos;
+	while (i)
+	{
+		pthread_join(dinner->philos[i - 1].thread_id, NULL);
+		i--;
+	}
 	pthread_mutex_destroy(dinner->rules.dashboard);
 	free(dinner->rules.dashboard);
 	pthread_mutex_destroy(dinner->forks);
@@ -74,8 +90,6 @@ void	stop_dinner(t_dinner *dinner)
 	free(dinner->rules.eat_mut);
 	pthread_mutex_destroy(dinner->rules.state_mut);
 	free(dinner->rules.state_mut);
-	if (dinner->rules.time_ctrl)
-		free(dinner);
 }
 
 void	*waiter_lim(void *args)

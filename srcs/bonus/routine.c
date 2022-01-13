@@ -12,12 +12,14 @@
 
 #include "../../includes/philo_bonus.h"
 
-void	eating(void *args)
+int	eating(void *args)
 {
 	t_philo	*philo;
 	int		timestamp;
 
 	philo = args;
+	if (philo->stop)
+		return (1);
 	timestamp = get_cur_time(philo->rules);
 	philo->last_eat_start = timestamp;
 	sem_wait(philo->rules->dashboard);
@@ -26,48 +28,65 @@ void	eating(void *args)
 	u_sleep(philo->rules->time_to_eat * 1000);
 	sem_post(philo->forks);
 	sem_post(philo->forks);
+	sem_post(philo->rules->next);
+	philo->eat_num++;
+	if (philo->rules->limit_eats > -1 && \
+			philo->eat_num == philo->rules->limit_eats)
+		sem_post(philo->rules->lim_stop);
+	return (0);
 }
 
-void	sleeping(void *args)
+int	sleeping(void *args)
 {
 	t_philo	*philo;
 	int		timestamp;
 
 	philo = args;
+	if (philo->stop)
+		return (1);
 	timestamp = get_cur_time(philo->rules);
 	sem_wait(philo->rules->dashboard);
 	printf("%d %d is sleeping\n", timestamp, philo->id);
 	sem_post(philo->rules->dashboard);
 	u_sleep(philo->rules->time_to_sleep * 1000);
+	return (0);
 }
 
-void	trying_forks(void *args)
+int	trying_forks(void *args)
 {
 	t_philo	*philo;
 	int		timestamp;
 
 	philo = args;
+	if (philo->stop)
+		return (1);
 	sem_wait(philo->rules->next);
+	if (philo->stop)
+		return (1);
 	sem_wait(philo->forks);
 	timestamp = get_cur_time(philo->rules);
 	sem_wait(philo->rules->dashboard);
 	printf("%d %d has taken a fork\n", timestamp, philo->id);
 	sem_post(philo->rules->dashboard);
+	if (philo->stop || philo->philo_num == 1)
+		return (1);
 	sem_wait(philo->forks);
-	sem_post(philo->rules->next);
 	timestamp = get_cur_time(philo->rules);
 	sem_wait(philo->rules->dashboard);
 	printf("%d %d has taken a fork\n", timestamp, philo->id);
 	sem_post(philo->rules->dashboard);
+	return (0);
 }
 
-void	thinking(void *args)
+int	thinking(void *args)
 {
 	t_philo	*philo;
 	int		timestamp;
 	int		more;
 
 	philo = args;
+	if (philo->stop)
+		return (1);
 	timestamp = get_cur_time(philo->rules);
 	sem_wait(philo->rules->dashboard);
 	printf("%d %d is thinking\n", timestamp, philo->id);
@@ -79,4 +98,5 @@ void	thinking(void *args)
 			u_sleep(more * 1000);
 		u_sleep(THIRD_GROUP_LAG);
 	}
+	return (0);
 }

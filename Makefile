@@ -13,7 +13,7 @@ DIRS = ${OBJS_DIR_CMN} ${OBJS_DIR} ${OBJS_DIR_B}
 
 SRCS_LIST_CMN = ft_atoi.c
 SRCS_LIST = init.c control.c routine.c main.c utils.c test.c
-SRCS_LIST_B = init.c control.c routine.c utils.c main.c
+SRCS_LIST_B = init.c control.c philo_control.c routine.c utils_bonus.c main.c
 OBJS_LIST_CMN = ${SRCS_LIST_CMN:.c=.o}
 OBJS_LIST = ${SRCS_LIST:.c=.o}
 OBJS_LIST_B= ${SRCS_LIST_B:.c=.o}
@@ -23,7 +23,7 @@ OBJS_B = $(addprefix ${OBJS_DIR_B}/,${OBJS_LIST_B})
 DEPS = ${OBJS_CMN:.o=.d} ${OBJS:.o=.d} ${OBJS_B:.o=.d}
 
 INCLUDE = -I${INCL_DIR}
-CFLAGS := -Wall -Werror -Wextra -MMD
+CFLAGS := -g -Wall -Werror -Wextra -MMD
 LIBRARIES = -pthread -lphilo
 LDFLAGS = -L.
 

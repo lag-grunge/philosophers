@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   utils_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 01:37:20 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/11 01:41:19 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/13 01:19:24 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,15 +68,22 @@ void	u_sleep(int mseconds)
 	}
 }
 
-int	kill_em(t_dinner *dinner)
+void	close_sems(t_dinner *dinner)
 {
-	int	i;
-
-	i = 0;
-	while (i < dinner->philo_num)
+	sem_close(dinner->forks);
+	sem_unlink("forks");
+	sem_close(dinner->rules.stop_die);
+	sem_unlink("stop_die");
+	sem_close(dinner->rules.dashboard);
+	sem_unlink("dashboard");
+	if (dinner->rules.lim_stop)
 	{
-		kill(dinner->philos[i].pid, SIGTERM);
-		i++;
+		sem_close(dinner->rules.lim_stop);
+		sem_unlink("lim_stop");
 	}
-	return (0);
+	if (dinner->philo_num % 2)
+	{
+		sem_close(dinner->rules.next);
+		sem_unlink("next");
+	}
 }

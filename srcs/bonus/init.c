@@ -34,6 +34,7 @@ void	get_rules(t_rules *rules, int philo_num, char *argv[])
 	rules->stop_die = my_sem_open("stop_die", 0);
 	rules->dashboard = my_sem_open("dashboard", 1);
 	rules->lim_stop = NULL;
+	rules->eat_ctrl = 0;
 	if (rules->limit_eats > -1)
 		rules->lim_stop = my_sem_open("lim_stop", 0);
 	if (philo_num == 1)
@@ -48,6 +49,8 @@ void	get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 	int		i;
 
 	p = (t_philo *)malloc(sizeof(t_philo) * philo_num);
+	if (!p)
+		exit (malloc_error);
 	i = 0;
 	while (i < philo_num)
 	{
@@ -56,6 +59,9 @@ void	get_philos(t_philo **philos, int philo_num, t_dinner *dinner)
 		p[i].eat_num = 0;
 		p[i].forks = dinner->forks;
 		p[i].thinker = philo_num % 2;
+		p[i].last_eat_start = 0;
+		p[i].stop = 0;
+		p[i].philo_num = philo_num;
 		i++;
 	}
 	*philos = p;

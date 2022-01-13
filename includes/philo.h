@@ -6,7 +6,7 @@
 /*   By: sdalton <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/28 23:02:14 by sdalton           #+#    #+#             */
-/*   Updated: 2022/01/11 01:16:40 by sdalton          ###   ########.fr       */
+/*   Updated: 2022/01/13 01:10:44 by sdalton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ typedef struct s_rules {
 	int					time_to_sleep;
 	int					limit_eats;
 	int					philo_num;
+	int					started_philos;
 	int					*states;
 }		t_rules;
 typedef struct s_philo {
@@ -94,10 +95,10 @@ void	stop_dinner(t_dinner *dinner);
 void	*waiter_die(void *args);
 void	*waiter_lim(void *args);
 
-void	eating(void *args);
-void	sleeping(void *args);
-void	thinking(void *args);
-void	trying_forks(void *args);
+int		eating(void *args);
+int		sleeping(void *args);
+int		thinking(void *args);
+int		trying_forks(void *args);
 
 int		get_cur_time(t_rules *rules);
 int		ft_atoi(char *s);
